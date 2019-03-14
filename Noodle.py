@@ -18,7 +18,7 @@ except ImportError:
 
 version = discord.__version__
 client = Bot(command_prefix=';',pm_help=True)
-status = ['全ての麺類に祝福を...','麺類うめ～','このBOTは兄者によって作られました']
+status = ['ヘルプしてね']
 m = "私は"
 like = "が好きです"
 
@@ -65,7 +65,7 @@ async def on_message(message):
         await client.send_message(message.channel,"**コマンドはDMでは使うことができません...**")
         return
 
-    if message.content.startswith("麺類生成"):
+    if message.content.startswith("麺類作成"):
         if message.channel.id == "516098503265484854":
             up = discord.Color(random.randint(0,0xFFFFFF))
             author = message.author
@@ -269,7 +269,7 @@ async def on_message(message):
                 li = li[n:]
 
         for roles in slice(message.server.role_hierarchy,50):
-            role = "\n".join(f'{i}: {role.mention}' for (i,role) in enumerate(roles,start=1) if role.mentionable)
+            role = "\n".join(f'{i}: {role.mention}' for (i,role) in enumerate(roles,start=1))
             userembed = discord.Embed(
                 title="麺類一覧:",
                 description=role,
