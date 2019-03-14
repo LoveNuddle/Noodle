@@ -93,10 +93,7 @@ async def on_message(message):
 
     if message.content.startswith("個人情報"):
         try:
-            if not message.mentions[0] == None:
-                user = message.author
-            else:
-                user = message.mentions[0]
+            user = message.mentions[0]
             userjoindate = str(user.joined_at.strftime("%Y/%m/%d %H:%M:%S"))
             usercreatedate = str(user.created_at.strftime("%Y/%m/%d %H:%M:%S"))
             role = ", ".join([r.name for r in user.roles])
@@ -321,7 +318,7 @@ async def on_message(message):
         )
         embed.add_field(
             name="個人情報 @メンション",
-            value="メンションした人の情報を得られます\nメンションがなければ自分の情報が表示されます",
+            value="メンションした人の情報を得られます",
             inline=False
         )
         embed.add_field(
