@@ -144,7 +144,7 @@ async def on_message(message):
 
             await client.send_message(message.channel,embed=userembed)
         except IndexError:
-            await client.send_message(message.channel,";info メンションをしてください。")
+            await client.send_message(message.channel,"個人情報 @メンションをしてください。")
         except:
             await client.send_message(message.channel,"すいません。ERRORです。")
         finally:
@@ -313,7 +313,7 @@ async def on_message(message):
         )
         embed.add_field(
             name="私は〇〇が好きです",
-            value="私は〇〇が好きですと#自己紹介 で打てば役職を付与されます。例:私はうどんが好きです",
+            value=f"""私は〇〇が好きですと{client.get_channel('515817537406107648').mention}で打てば役職を付与されます。例:私はうどんが好きです""",
             inline=False
         )
         embed.add_field(
