@@ -357,4 +357,4 @@ async def on_message(message):
 
 
 client.loop.create_task(change_status())
-client.run("NTE1ODY0ODc2MzA5MjgyODM3.DtrakA.SAzWDwfJk2li2WWcYpcRm5HcG0o")
+client.run(os.environ.get("TOKEN"))
