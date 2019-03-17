@@ -313,7 +313,7 @@ async def on_message(message):
         )
         embed.add_field(
             name="私は〇〇が好きです",
-            value=f"""私は〇〇が好きですと{client.get_channel('515817537406107648').mention}で打てば役職を付与されます。例:私はうどんが好きです""",
+            value=f"私は〇〇が好きですと{client.get_channel('515817537406107648').mention}で打てば役職を付与されます。例:私はうどんが好きです",
             inline=False
         )
         embed.add_field(
