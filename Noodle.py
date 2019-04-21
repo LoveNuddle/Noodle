@@ -340,7 +340,7 @@ async def on_message(message):
                         for row1 in db_get_answer():
                             embed = discord.Embed(
                             title="QUESTION:",
-                            description=f"<@{int(message.author.id)}>さん\n解答内容:\n\n`{row1[1]}`",
+                            description=f"<@{int(message.author.id)}>さん\n解答内容:\n\n`{message.content[14:]}`",
                             color=discord.Color(0xc088ff),
                             timestamp=message.timestamp
                             )
