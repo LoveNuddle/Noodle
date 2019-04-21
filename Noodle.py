@@ -283,10 +283,10 @@ async def on_message(message):
     if message.content.startswith(">locate"):
         async def answer_all(numbers):
             if db_count_up_1(str(message.content.split()[1])):
-                index = 0
+                page = 1 
                 while True:
                     global ok
-                    join = "".join(numbers[index:index + 2])
+                    join = "".join(numbers[(page - 1) * 2:page * 2])
                     for row in list(db_read()):
                         if str(row[0]) == message.content.split()[1]:
                             embed = discord.Embed(
@@ -308,17 +308,17 @@ async def on_message(message):
                                     ok = client.send_message(message.channel,embed=embeds)
                             else:
                                 msg = await ok
-                                l = index != 0
-                                r = index != len(numbers) - 1
+                                l = page != 1
+                                r = page < len(numbers) / 5
                                 if l:
                                     await client.add_reaction(msg,left)
                                 if r:
                                     await client.add_reaction(msg,right)
                                 react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
                                 if react.emoji == left:
-                                    index -= 2
+                                    page -= 1
                                 elif react.emoji == right:
-                                    index += 2
+                                    page += 1
                                 await client.delete_message(embedss)
                                 await client.delete_message(msg)
 
