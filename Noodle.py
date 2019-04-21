@@ -1,10 +1,14 @@
-import random
+# -------------------------------------------------------------------------------------------------------------------
 import sys
-import asyncio
-import platform
-import os
+import string, random
+import math
+import psycopg2
 
-from itertools import cycle
+from datetime import datetime
+from collections import defaultdict
+
+ROLE_PER_SERVER = defaultdict(list)
+ROLE_LEVEL_PER_SERVER = defaultdict(dict)
 
 try:
     from discord.ext import commands
@@ -15,344 +19,523 @@ try:
 except ImportError:
     print("Discord.py がインストールされていません。\nDiscord.pyをインストールしてください。")
     sys.exit(1)
+# -------------------------------------------------------------------------------------------------------------------
+client = Bot(command_prefix='&',pm_help=True)
+all_member = ""
+get_user = ""
+get_bot = ""
+count = 0
+counts = 0
+number = 0
+left = '⏪'
+right = '⏩'
 
-version = discord.__version__
-client = Bot(command_prefix=';',pm_help=True)
-status = ['ヘルプしてね']
-m = "私は"
-like = "が好きです"
+def predicate(message, l, r):
+    def check(reaction, user):
+        if reaction.message.id != message.id or user == client.user:
+            return False
+        if l and reaction.emoji == left:
+            return True
+        if r and reaction.emoji == right:
+            return True
+        return False
 
-
-# ～～をプレイ中の場所を定期的に変更
-async def change_status():
-    await client.wait_until_ready()
-    msgs = cycle(status)
-
-    while not client.is_closed:
-        current_status = next(msgs)
-        await client.change_presence(game=discord.Game(name=current_status))
-        await asyncio.sleep(30)
-
-
-# Botの脳の部分
+    return check
+# -------------------------------------------------------------------------------------------------------------------
 @client.event
 async def on_ready():
-    print("Discordが準備されました。")
-    print("Botの名前:" + client.user.name + "(ID:" + client.user.id + ")")
-    print('--------')
-    print("BOTが取得してるサーバー数:{}".format(len(client.servers)))
-    print("Botが取得してるチャンネル数: {}".format(len([c for c in client.get_all_channels()])))
-    print("Botが取得してるユーザー数: {}".format(len(set(client.get_all_members()))))
-    print('--------')
-    print("discord.py Version: {}".format(version))
-    print("Python Version: {}".format(platform.python_version()))
-    print('--------')
-    print("Botの招待")
-    print("https://discordapp.com/api/oauth2/authorize?client_id=515864876309282837&permissions=8&scope=bot")
+    await client.change_presence(game=discord.Game(name=">help | ver:1.0.0"))
+# -------------------------------------------------------------------------------------------------------------------
+@client.event
+async def on_member_join(member):
+    await client.edit_channel(client.get_channel(all_member),name="総メンバー数: {}".format(len(member.server.members)))
+    await client.edit_channel(client.get_channel(get_user),name="ユーザー数: {}".format(len([member for member in member.server.members if not member.bot])))
+    await client.edit_channel(client.get_channel(get_bot),name="ボットの数: {}".format(len([member for member in member.server.members if member.bot])))
+
+# -------------------------------------------------------------------------------------------------------------------
+@client.event
+async def on_member_remove(member):
+    await client.edit_channel(client.get_channel(all_member),name="総メンバー数: {}".format(len(member.server.members)))
+    await client.edit_channel(client.get_channel(get_user),name="ユーザー数: {}".format(len([member for member in member.server.members if not member.bot])))
+    await client.edit_channel(client.get_channel(get_bot),name="ボットの数: {}".format(len([member for member in member.server.members if member.bot])))
 
 
 @client.event
 async def on_message(message):
-    global role
-    channel = message.channel
 
-    # 発言がBotだった場合反応しない
-    if client.user == message.author:
-        return
+    if datetime.now().strftime("%H:%M:%S") == datetime.now().strftime("12:00:00") or message.content == ">update-messega":
+        if message.author.server_permissions.administrator:
+            await client.delete_message(message)
+            counter = 0
+            all_message = ""
+            channel_name = client.get_channel(all_message)
+            for i in message.server.channels:
+                async for log in client.logs_from(i,limit=99999999999):
+                    if log.server.id == message.server.id:
+                        counter += 1
+                await client.edit_channel(channel_name,name="総メッセージ数: {}".format(counter))
+            return
 
-    # 発言がDMだった場合反応しない
-    if message.channel.type == ChannelType.private:
-        await client.send_message(message.channel,"**コマンドはDMでは使うことができません...**")
-        return
+    if message.content == ">help":
+        embed=discord.Embed(
+            title='**Help**',
+            color=discord.Color(0xc088ff),
+            description="""
+            Command一覧
+            ここでは識別IDを`[0iKV5]`で例えています。
+            実際は違いますのでご注意を。
+            
+            ----------------------------------------------------------
+            `>q-c 質問内容` or `>question-create 質問内容`
+            ↳質問出来るよ！
+            ↳自分が今気になってることを質問してみてね！
+            ↳↳[例:>q-c なんで地球って青いの？]
+            
+            ----------------------------------------------------------
+            `>question-editing 識別ID 変更内容`
+            ↳質問作成した時に質問識別のIDが作成されるから
+            ↳自分の問題内容を変えたい場合は使ってね！
+            ↳↳[例:>question-editing 0iKV5 地球は赤かったかもよ？]
+            ※このコマンドは自分の質問しか編集できません。
+            
+            ----------------------------------------------------------
+            `>answer 識別ID 回答内容`
+            ↳これは誰でも回答できます！
+            ↳自分が質問に答える際はこれを使用してください。
+            ↳↳[例:>answer 0iKV5 地球が赤いわけないだろ...]
+            
+            ----------------------------------------------------------
+            `>question-list`
+            ↳今までされた質問すべてを閲覧できる！
+            
+            ----------------------------------------------------------
+            `>question-delete 識別ID`
+            ↳入力したIDの質問を削除できます
+            ↳解決した問題などはこれで削除しましょう。
+            ↳↳[例:>question-delete 0iKV5]
+            ※このコマンドは自分の質問しか削除できません。
+            
+            ----------------------------------------------------------
+            `>locate 識別ID`
+            ↳入力したIDの詳細が見れます。
+            ↳今までに回答された内容を閲覧可能です！
+            ↳↳[例:>locate 0iKV5]
+            
+            ----------------------------------------------------------
+            このBOTはプロデュースが𝗠𝗞𝗠𝗞𝟭𝟭𝟬𝟭™#3577
+            組み立てをThe.First.Step#3454が行いました！
+            質問等はThe.First.Step#3454にDMでお問い合わせ下さい！
+            
+            ----------------------------------------------------------
+            """
+        )
+        embed.set_thumbnail(
+            url="https://pbs.twimg.com/profile_images/790896010176237568/a8QtyZLF_400x400.jpg"
+        )
+        await client.send_message(message.channel, embed=embed)
 
-    if message.content.startswith("麺類作成"):
-        if message.channel.id == "516098503265484854":
-            up = discord.Color(random.randint(0,0xFFFFFF))
-            author = message.author
-            role_name = message.content.split()[1]
-            role = await client.create_role(author.server,name=role_name,color=up)
-            await client.send_message(message.channel,f'作成完了:{role_name} の役職を作成しました')
-            member = discord.utils.get(message.server.members,name='We are the Noodle')
-            await client.add_roles(message.author,role)
-            await client.add_roles(member,role)
-            await client.send_message(message.channel,f'付与完了:{role_name}の役職を<@515864876309282837>に付与しました')
-            await client.send_message(message.channel,f'{message.author.mention} さんに{role_name}役職を付与しました！')
-
-    if like in message.content:
-        roles = [role for role in message.server.roles if role.name in message.content]
-        await client.add_roles(message.author,*roles)
-        await client.send_message(message.channel,
-                                  f'{message.author.mention} さんに{",".join([x.name for x in roles])}役職を付与しました！')
-
-    if message.content.startswith("麺類廃棄"):
-        if message.channel.id == "516098503265484854":
-            role_name = message.content.split()[1]
-            role = discord.utils.get(message.server.roles,name=role_name)
-            await client.delete_role(message.server,role)
-            await client.send_message(message.channel,f'作成完了:{role_name} の役職を削除しました')
-
-    if message.content.startswith("個人情報"):
-        try:
-            user = message.mentions[0]
-            userjoindate = str(user.joined_at.strftime("%Y/%m/%d %H:%M:%S"))
-            usercreatedate = str(user.created_at.strftime("%Y/%m/%d %H:%M:%S"))
-            role = ", ".join([r.name for r in user.roles])
-            nickname = str(user.display_name)
-
-            up = discord.Color(random.randint(0,0xFFFFFF))
-
-            userembed = discord.Embed(
-                title=":pencil:ユーザー名:",
-                description="**『" + user.name + "』**",
-                color=up
-            )
-            userembed.set_author(
-                name=user.name + "#" + user.discriminator + "のユーザー情報:"
-            )
-            userembed.add_field(
-                name=":earth_asia:ニックネーム:",
-                value="**" + nickname + "**"
-            )
-            userembed.add_field(
-                name=":bulb:サーバー参加日:",
-                value="**" + userjoindate + "**"
-            )
-            userembed.add_field(
-                name=":bar_chart:アカウント作成日:",
-                value="**" + usercreatedate + "**"
-            )
-            userembed.add_field(
-                name=":hash:ユーザーID:",
-                value="**" + user.id + "**"
-            )
-            userembed.set_thumbnail(
-                url="https://cdn.discordapp.com/avatars/{0.id}/{0.avatar}.png?size=1024".format(user)
-            )
-            userembed.add_field(
-                name=":scroll:ユーザーTAG:",
-
-                value="**#" + user.discriminator + "**"
-            )
-            userembed.add_field(
-                name=":signal_strength:ユーザーの現在のステータス:",
-                value="**" + str(user.status) + "**"
-            )
-            userembed.add_field(
-                name=":diamond_shape_with_a_dot_inside:ユーザーが現在付与されてる役職",
-                value="**" + role + "**"
-            )
-
-            await client.send_message(message.channel,embed=userembed)
-        except IndexError:
-            await client.send_message(message.channel,"個人情報 @メンションをしてください。")
-        except:
-            await client.send_message(message.channel,"すいません。ERRORです。")
-        finally:
-            pass
-
-    if message.content == "鯖情報":
-        server = message.server
-        region = message.server.region
-        channelss = len(message.server.channels)
-        memberss = len(message.server.members)
-        role = str(len(server.roles))
-        emoji = str(len(server.emojis))
-        owner = server.owner
-        tekitou = server.role_hierarchy[0]
-        online = 0
-        for i in server.members:
-            if str(i.status) == 'online' or str(i.status) == 'idle' or str(i.status) == 'dnd':
-                online += 1
-        up = discord.Color(random.randint(0,0xFFFFFF))
-        try:
-            userembed = discord.Embed(
-                title=server.name + "の情報:",
-                color=up
-            )
-            userembed.set_thumbnail(
-                url=server.icon_url
-            )
-            userembed.add_field(
-                name="サーバーID:",
-                value=server.id
-            )
-            userembed.add_field(
-                name="サーバーオーナ:",
-                value=owner
-            )
-            userembed.add_field(
-                name="サーバーリュージョン:",
-                value=region
-            )
-            userembed.add_field(
-                name="メンバー数:",
-                value=memberss
-            )
-            userembed.add_field(
-                name="チャンネル数:",
-                value=channelss
-            )
-            userembed.add_field(
-                name="役職数:",
-                value=role
-            )
-            userembed.add_field(
-                name="現在オンラインの数:",
-                value=online
-            )
-            userembed.add_field(
-                name="鯖に追加した絵文字の数:",
-                value=emoji
-            )
-            userembed.add_field(
-                name="サーバー最上位役職:",
-                value=tekitou
-            )
-            userembed.set_footer(
-                text="サーバー作成日: " + server.created_at.__format__(' %Y/%m/%d %H:%M:%S')
-            )
-            await client.send_message(message.channel,embed=userembed)
-        except:
-            await client.send_message(message.channel,"すいません。ERRORです。.")
-        finally:
-            pass
-
-    if message.content.startswith("リスト"):
-        async def send(member_data):
-            up = discord.Color(random.randint(0,0xFFFFFF))
-            name = message.content[4:]
-            role = discord.utils.get(message.server.roles,name=message.content[4:])
-            if not role == None:
-                nick_name = f"『{name}』役職を持っているメンバー！！"
-            else:
-                nick_name = f"{message.author}さん\n『{name}』役職はこの鯖には存在しておりません..."
+    if message.content.startswith(">question-create"):
+        def randomname(n):
+            a =''.join(random.choices(string.ascii_letters + string.digits,k=n))
+            return a
+        numbers =randomname(5)
+        content =message.content[17:]
+        if content == "":
             embed = discord.Embed(
-                title=nick_name,
-                description=member_data,
-                color=up,
+                description=f"{message.author.mention}さん\nメッセージを入力してくれよな！",
+                color=discord.Color(0xc088ff),
+            )
+            await client.send_message(message.channel,embed=embed)
+            return
+
+        ans = db_write(
+            str(numbers),
+            int(message.author.id),
+            str(content)
+        )
+        if ans == True:
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\n\n`{content}`\n\nID:{numbers}",
+                color=discord.Color(0xc088ff),
                 timestamp=message.timestamp
             )
-            embed.set_author(
-                name="メンバー詳細:"
+            embed.set_footer(
+                text="作成時刻:"
+            )
+            await client.send_message(message.channel,embed=embed)
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\n\n`{content}`\n\nID:{numbers}",
+                color=discord.Color(0xc088ff),
+                timestamp=message.timestamp
+            )
+            embed.set_footer(
+                text="作成時刻:"
+            )
+            await client.send_message(client.get_channel("549081574583566376"),embed=embed)
+            return
+
+    if message.content.startswith(">q-c"):
+        def randomname(n):
+            a =''.join(random.choices(string.ascii_letters + string.digits,k=n))
+            return a
+        numbers =randomname(5)
+        content =message.content[5:]
+        if content == "":
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\nメッセージを入力してくれよな！",
+                color=discord.Color(0xc088ff),
+            )
+            await client.send_message(message.channel,embed=embed)
+            return
+
+        ans = db_write(
+            str(numbers),
+            int(message.author.id),
+            str(content)
+        )
+        if ans == True:
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\n\n`{content}`\n\nID:{numbers}",
+                color=discord.Color(0xc088ff),
+                timestamp=message.timestamp
+            )
+            embed.set_footer(
+                text="作成時刻:"
+            )
+            await client.send_message(message.channel,embed=embed)
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\n\n`{content}`\n\nID:{numbers}",
+                color=discord.Color(0xc088ff),
+                timestamp=message.timestamp
+            )
+            embed.set_footer(
+                text="作成時刻:"
+            )
+            await client.send_message(client.get_channel("549081574583566376"),embed=embed)
+            return
+
+    if message.content == ">question-list":
+        async def message_number(numbers):
+            if len(list(db_read())) == 0:
+                embed = discord.Embed(
+                    title="現在の質問リスト:",
+                    description="質問が一つもありません！",
+                    color=discord.Color(0xc088ff),
+                )
+                await client.send_message(message.channel,embed=embed)
+                return
+            page = 1
+            while True:
+                join = "".join(numbers[(page-1)*5:page*5])
+                embed = discord.Embed(
+                    title="現在の質問リスト:",
+                    description=join + "-------------------------------",
+                    color=discord.Color(0xc088ff),
+                    )
+                embed.set_footer(
+                    text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中"
+                )
+                msg = await client.send_message(message.channel,embed=embed)
+                l = page != 1
+                r = page < len(numbers) / 5
+                if l:
+                    await client.add_reaction(msg,left)
+                if r:
+                    await client.add_reaction(msg,right)
+                react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
+                if react.emoji == left:
+                    page -= 1
+                elif react.emoji == right:
+                    page += 1
+                await client.delete_message(msg)
+
+
+        numbers = []
+        for row in db_read():
+            numbers.append("".join(
+                f"""-------------------------------\n<@{row[1]}>さんの質問\n\n`{str(row[2])}`\n\n閲覧数：{row[3]}\n回答数：{row[4]}\nID：{str(row[0])}\n\n"""))
+        else:
+            await message_number(numbers)
+
+
+    if message.content.startswith(">question-editing"):
+        content = message.content[24:]
+        for row in list(db_read()):
+            if int(row[1]) == int(message.author.id):
+                ans = db_access(
+                    str(message.content.split()[1]),
+                    str(content)
+                )
+                if str(row[0]) == message.content.split()[1]:
+                    if ans == True:
+                        embed = discord.Embed(
+                            title="QUESTION:",
+                            description=f"ID：`{message.content.split()[1]}`\n<@{message.author.id}>さんが作成した質問\n\n**変更内容:**\n`{content}`",
+                            color=discord.Color(0xc088ff),
+                            timestamp=message.timestamp
+                        )
+                        embed.set_footer(
+                            text="変更時刻:"
+                        )
+                        await client.send_message(message.channel,embed=embed)
+                        return
+        else:
+            embed = discord.Embed(
+                title="",
+                description=f"もしコマンドが反応しなかった場合\nあなたにはこの認証コードを\n編集する権限がない証拠です...",
+                color=discord.Color(0xc088ff),
+                timestamp=message.timestamp
             )
             embed.set_footer(
                 text="現在時刻:"
             )
             await client.send_message(message.channel,embed=embed)
-
-        i = 1
-        member_data = ""
-        role = discord.utils.get(message.server.roles,name=message.content[4:])
-        for member in message.server.members:
-            if role is None:
-                member_data = ""
-                await send(member_data)
-                return
-            if role in member.roles:
-                member_data += "{0}人目:『{1}』\n".format(i,member.name)
-                if i % 100 == 0:
-                    await send(member_data)
-                    # リセットする
-                    member_data = ""
-                i += 1
-        else:
-            await send(member_data)
             return
 
-    if message.content == "全麺類一覧":
-        def slice(li,n):
-            while li:
-                yield li[:n]
-                li = li[n:]
+    if message.content.startswith(">locate"):
+        async def answer_all(numbers):
+            if db_count_up_1(str(message.content.split()[1])):
+                index = 0
+                while True:
+                    global ok
+                    join = "".join(numbers[index:index + 2])
+                    for row in list(db_read()):
+                        if str(row[0]) == message.content.split()[1]:
+                            embed = discord.Embed(
+                                title="QUESTION:",
+                                description=f"""<@{row[1]}>さんの質問\n\n`{str(row[2])}`\n\n閲覧数：{row[3]}\n回答数：{row[4]}\nID：{str(row[0])}\n""",
+                                color=discord.Color(0xc088ff),
+                            )
+                            embedss= await client.send_message(message.channel,embed=embed)
+                            for row1 in db_get_answer():
+                                if str(row1[0]) == str(row[0]) == message.content.split()[1]:
+                                    embeds = discord.Embed(
+                                        description=join + "-------------------------------",
+                                        color=discord.Color(0xc088ff),
+                                        timestamp=message.timestamp
+                                    )
+                                    embeds.set_footer(
+                                        text="表示時刻:"
+                                    )
+                                    ok = client.send_message(message.channel,embed=embeds)
+                            else:
+                                msg = await ok
+                                l = index != 0
+                                r = index != len(numbers) - 1
+                                if l:
+                                    await client.add_reaction(msg,left)
+                                if r:
+                                    await client.add_reaction(msg,right)
+                                react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
+                                if react.emoji == left:
+                                    index -= 2
+                                elif react.emoji == right:
+                                    index += 2
+                                await client.delete_message(embedss)
+                                await client.delete_message(msg)
 
-        for roles in slice(message.server.role_hierarchy,50):
-            role = "\n".join(f'{i}: {role.mention}' for (i,role) in enumerate(roles,start=1))
-            userembed = discord.Embed(
-                title="麺類一覧:",
-                description=role,
-                color=discord.Color.light_grey()
+
+        numbers = []
+        for row,row1 in zip(db_read(),db_get_answer()):
+            if len(list(row1[0])) == 0:
+                return
+            numbers.append("".join(
+                [f"""-------------------------------\n<@{int(row[1])}>さんの回答\n`{row1[1]}`\n\n"""]))
+        await answer_all(numbers)
+
+    if message.content.startswith(">answer "):
+        for row in list(db_read()):
+            if str(row[0]) == message.content.split()[1]:
+                if db_count_up(str(message.content.split()[1])):
+                    global counts
+                    counts += 1
+                    if db_answer(message.content.split()[1],message.content[14:]) == True:
+                        for row1 in db_get_answer():
+                            embed = discord.Embed(
+                            title="QUESTION:",
+                            description=f"<@{int(row[1])}>さん\n解答内容:\n\n`{row1[1]}`",
+                            color=discord.Color(0xc088ff),
+                            timestamp=message.timestamp
+                            )
+                            embed.set_footer(
+                                text="時刻:"
+                            )
+                            await client.send_message(message.channel,embed=embed)
+                            return
+
+    if message.content.startswith(">question-delete"):
+        for row in list(db_read()):
+            if int(row[1]) == int(message.author.id):
+                if str(row[0]) == message.content.split()[1]:
+                    if db_reset_question(int(message.author.id),str(message.content.split()[1])) == True:
+                        embed = discord.Embed(
+                            description=f"<@{message.author.id}>さんが自身の質問を削除しました。",
+                            color=discord.Color(0xc088ff),
+                        )
+                        await client.send_message(message.channel,embed=embed)
+                        return
+        else:
+            embed = discord.Embed(
+                description=f"もしコマンドが反応しなかった場合\nあなたにはこのコードを\n削除する権限がない証拠です...",
+                color=discord.Color(0xc088ff),
+                timestamp=message.timestamp
             )
-
-            userembed.set_thumbnail(
-                url=message.server.icon_url
+            embed.set_footer(
+                text="現在時刻:"
             )
-            userembed.set_author(
-                name=message.server.name + "の全麺類情報:"
-            )
-            await client.send_message(message.channel,embed=userembed)
-        await client.send_message(message.channel,"この鯖の麺類の合計の数は`{}`です！".format(str(len(message.server.roles))))
+            await client.send_message(message.channel,embed=embed)
+            return
 
-    if message.content == '麺類一覧':
-        role = "\n".join([r.mention for r in message.author.roles][::-1])
-        up = discord.Color(random.randint(0,0xFFFFFF))
-        embed = discord.Embed(
-            title="**{}**が取得している麺類の一覧:".format(message.author),
-            description=role,
-            color=up
-        )
-        embed.set_thumbnail(
-            url="https://cdn.discordapp.com/avatars/{0.id}/{0.avatar}.png?size=1024".format(message.author)
-        )
-        await client.send_message(message.channel,embed=embed)
+    if message.content.startswith(">>question-delete"):
+        for row in list(db_read()):
+            kengensya = ["304932786286886912","439725181389373442"]
+            if message.author.id in kengensya:
+                if str(row[0]) == message.content.split()[1]:
+                    if db_reset_all_question(str(message.content.split()[1])) == True:
+                        embed = discord.Embed(
+                            description=f"<@{message.author.id}>さんが強制的に質問を削除しました。",
+                            color=discord.Color(0xc088ff),
+                        )
+                        await client.send_message(message.channel,embed=embed)
+                        return
+            else:
+                embed = discord.Embed(
+                    description="このコマンドはBOTの管理者のみ使用可能です。",
+                    color=discord.Color(0xc088ff),
+                )
+                await client.send_message(message.channel,embed=embed)
+                return
 
-    if message.content == "ヘルプ":
-        embed = discord.Embed(
-            title='**Help一覧**',
-            colour=discord.Color(random.randint(0,0xFFFFFF)),
-            description=""
-        )
-        embed.set_footer(
-            text="朝,昼,晩麺類だよねだよね！"
-        )
-        embed.set_author(
-            name="麺類鯖だけのために作られたBOT",
-            icon_url="https://images-ext-1.discordapp.net/external/L0QWB8Lv9rafe5uJ4u_c5YGolY0SvVHrgkiJkX5Pp7c/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/515864876309282837/bb1d5baed8ad4018f6125f4d1dc0f9e6.png?width=676&height=676"
-        )
-        embed.set_thumbnail(
-            url="https://pbs.twimg.com/profile_images/790896010176237568/a8QtyZLF_400x400.jpg"
-        )
-        embed.add_field(
-            name="私は〇〇が好きです",
-            value=f"私は〇〇が好きですと{client.get_channel('515817537406107648').mention}で打てば役職を付与されます。例:私はうどんが好きです",
-            inline=False
-        )
-        embed.add_field(
-            name="個人情報 @メンション",
-            value="メンションした人の情報を得られます",
-            inline=False
-        )
-        embed.add_field(
-            name="鯖情報",
-            value="サーバーの情報を得られます",
-            inline=False
-        )
-        embed.add_field(
-            name="全麺類一覧",
-            value="この鯖の麺類役職をすべて表示します。",
-            inline=False
-        )
-        embed.add_field(
-            name="麺類一覧",
-            value="自分に付与されている麺類役職を表示します。",
-            inline=False
-        )
-        embed.add_field(
-            name="リスト [役職名]",
-            value="その役職を持っているメンバーを表示します。",
-            inline=False
-        )
-        embed.add_field(
-            name="麺類作成 [名前]",
-            value="役職が作成されます。　例:麺類作成 Noodle\n全ての麺類に祝福をより上に表示されてる役職は作成しないで下さい。",
-            inline=False
-        )
-        embed.add_field(
-            name="麺類破棄 [名前]",
-            value="役職が削除されます。　例:麺類破棄 Noodle\nもし役職を二個作ってしまった場合とかに使って下さい。",
-            inline=False
-        )
-        await client.send_message(channel,embed=embed)
+    if message.server.id == "521143812278714378":
+        global count
+        check = await client.wait_for_message(timeout=4,author=message.author)
+        if check:
+            count +=1
+            print(count)
+            if count > 10:
+                async for log in client.logs_from(message.channel,limit=100):
+                    if log.author.id == message.author.id:
+                        await client.delete_message(log)
+                await client.send_message(message.channel,f"{message.author.mention}の言動はSPAMに該当します。つきましては上記の文を削除致しました。")
+                return
+        if check is None:
+            count = 0
+            return
 
 
-client.loop.create_task(change_status())
+def db_read():
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute('''SELECT create_id,create_name,question,locate_number,answer_id from question;''')
+    ans = c.fetchall()
+    for row in ans:
+        yield (row[0],row[1],row[2],row[3],row[4])
+    else:
+        con.commit()
+        c.close()
+        con.close()
+
+def db_access(create_id,question):
+    create_id = str(create_id)
+    question = str(question)
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute("UPDATE question set question=%s where create_id=%s;",(question,create_id))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+
+def db_count_up(create_id):
+    create_id = str(create_id)
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute(
+    "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute("UPDATE question set answer_id = answer_id + 1 where create_id=%s;",(create_id,))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_count_up_1(create_id):
+    create_id = str(create_id)
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute("UPDATE question set locate_number = locate_number + 1 where create_id=%s;",(create_id,))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_write(create_id,create_name,question,):
+    create_id = str(create_id)
+    create_name = int(create_name)
+    question = str(question)
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute("INSERT INTO question(create_id, create_name, question,locate_number,answer_id) VALUES(%s,%s,%s,0,0);",(create_id,create_name,question))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_answer(create_id,answer_question):
+    create_id = str(create_id)
+    answer_question = str(answer_question)
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text);")
+    c.execute("INSERT INTO question_test(answer_questions,create_id) VALUES(%s,%s);",
+                (answer_question,create_id))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_get_answer():
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text);")
+    c.execute('''SELECT create_id,answer_questions from question_test;''')
+    ans = c.fetchall()
+    for row in ans:
+        yield (row[0],row[1])
+    else:
+        con.commit()
+        c.close()
+        con.close()
+
+def db_reset_question(create_name,create_id):
+    create_name = int(create_name)
+    create_id = str(create_id)
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute("delete from question where create_name=%s AND create_id=%s;",(create_name,create_id,))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_reset_all_question(create_id):
+    create_id = str(create_id)
+    con = psycopg2.connect(DATABASE_URL)
+    c = con.cursor()
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute("delete from question where create_id=%s;",(create_id,))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
 client.run(os.environ.get("TOKEN"))
