@@ -348,6 +348,8 @@ async def on_message(message):
                                 text="時刻:"
                             )
                             await client.send_message(message.channel,embed=embed)
+                            user=await client.get_user_info(f"{int(row[1])}")
+                            await client.send_message(user,embed=embed)
                             return
                         
     if message.content.startswith(">question-delete"):
