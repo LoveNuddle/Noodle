@@ -325,43 +325,42 @@ async def on_message(message):
                             description=f"""<@{row[1]}>さんの質問\n\n`{str(row[2])}`\n\n閲覧数：{row[3]}\n回答数：{row[4]}\nID：{str(row[0])}\n""",
                             color=discord.Color(0xc088ff),
                         )
-                        await client.send_message(message.channel,embed=embed)
-                        for row1 in db_get_answer():
-                            if str(row1[0]) == str(row[0]) == message.content.split()[1]:
-                                embeds = discord.Embed(
-                                description=join + "-------------------------------",
-                                color=discord.Color(0xc088ff),
-                                    timestamp=message.timestamp
-                                )
-                                embeds.set_footer(
-                                    text="表示時刻:"
-                                )
-                                msg = await client.send_message(message.channel,embed=embeds)
-                                while True:
-                                    l = page != 1
-                                    r = page < len(numbers) / 2
-                                    if l:
-                                        await client.add_reaction(msg,left)
-                                    if r:
-                                        await client.add_reaction(msg,right)
-                                    react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
-                                    if react.emoji == left:
-                                        page -= 1
-                                    elif react.emoji == right:
-                                        page += 1
-                                    for row1 in db_get_answer():
-                                        if str(row1[0]) == str(row[0]) == message.content.split()[1]:
-                                            embeds = discord.Embed(
-                                                description=join + "-------------------------------",
-                                                color=discord.Color(0xc088ff),
-                                                timestamp=message.timestamp
-                                            )
-                                            embeds.set_footer(
-                                                text="表示時刻:"
-                                            )
-                                            await client.edit_message(msg,embed=embeds)
-                                            await client.clear_reactions(msg)
-
+                await client.send_message(message.channel,embed=embed)
+                for row1 in db_get_answer():
+                    if str(row1[0]) == message.content.split()[1]:
+                        embeds = discord.Embed(
+                        description=join + "-------------------------------",
+                        color=discord.Color(0xc088ff),
+                            timestamp=message.timestamp
+                        )
+                        embeds.set_footer(
+                            text="表示時刻:"
+                        )
+                        msg = await client.send_message(message.channel,embed=embeds)
+                        while True:
+                            l = page != 1
+                            r = page < len(numbers) / 2
+                            if l:
+                                await client.add_reaction(msg,left)
+                            if r:
+                                await client.add_reaction(msg,right)
+                            react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
+                            if react.emoji == left:
+                                page -= 1
+                            elif react.emoji == right:
+                                page += 1
+                            for row1 in db_get_answer():
+                                if str(row1[0]) == message.content.split()[1]:
+                                    embeds = discord.Embed(
+                                        description=join + "-------------------------------",
+                                        color=discord.Color(0xc088ff),
+                                        timestamp=message.timestamp
+                                    )
+                                    embeds.set_footer(
+                                        text="表示時刻:"
+                                    )
+                                    await client.edit_message(msg,embed=embeds)
+                                    await client.clear_reactions(msg)
 
         numbers = []
         for row1 in db_get_answer():
