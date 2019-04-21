@@ -63,7 +63,11 @@ async def on_member_remove(member):
 
 @client.event
 async def on_message(message):
-
+    if message.content == "reset":
+        if db_reset_all_role() == True:
+            await client.send_message(message.channel,"ok")
+            return
+    
     if datetime.now().strftime("%H:%M:%S") == datetime.now().strftime("12:00:00") or message.content == ">update-messega":
         if message.author.server_permissions.administrator:
             await client.delete_message(message)
@@ -493,7 +497,7 @@ def db_answer(create_id,answer_question,create_name):
     create_id = str(create_id)
     answer_question = str(answer_question)
     create_name =int(create_name)
-    con = psycopg2.connect(DATABASE_URL)
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
     c.execute("INSERT INTO question_test(answer_questions,create_id,create_name) VALUES(%s,%s,%s);",
@@ -504,7 +508,7 @@ def db_answer(create_id,answer_question,create_name):
     return True
 
 def db_get_answer():
-    con = psycopg2.connect(DATABASE_URL)
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
     c.execute('''SELECT create_id,answer_questions,create_name from question_test;''')
@@ -536,6 +540,20 @@ def db_reset_all_question(create_id):
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
     c.execute("delete from question where create_id=%s;",(create_id,))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+
+def db_reset_all_role():
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute("DROP TABLE question;")
+    c.execute("DROP TABLE question_test;")
     con.commit()
     c.close()
     con.close()
