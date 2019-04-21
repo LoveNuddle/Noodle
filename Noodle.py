@@ -249,7 +249,7 @@ async def on_message(message):
                     r = page < len(numbers) / 5
                     if l:
                         await client.add_reaction(msg,left)
-                        if r:
+                    if r:
                         await client.add_reaction(msg,right)
                     react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
                     if react.emoji == left:
