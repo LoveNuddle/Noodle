@@ -323,12 +323,10 @@ async def on_message(message):
             await client.send_message(message.channel,embed=embed)
             return
 
-    if message.content.startswith(">locates"):
+    if message.content.startswith(">locate"):
         async def answer_all(numbers):
+            global embeds
             if db_count_up_1(str(message.content.split()[1])):
-                page = 1
-                global ok
-                join = "".join(numbers[(page - 1) * 2:page * 2])
                 for row in list(db_read()):
                     if str(row[0]) == message.content.split()[1]:
                         embed = discord.Embed(
@@ -338,6 +336,8 @@ async def on_message(message):
                         )
                         await client.send_message(message.channel,embed=embed)
                 for row1,row in zip(db_get_answer(),list(db_read())):
+                    page = 1
+                    join = "".join(numbers[(page - 1) * 2:page * 2])
                     if str(row1[0]) == str(row[0]) == message.content.split()[1]:
                         embeds = discord.Embed(
                             description=join + "-------------------------------",
@@ -360,6 +360,7 @@ async def on_message(message):
                                 page -= 1
                             elif react.emoji == right:
                                 page += 1
+                            join = "".join(numbers[(page - 1) * 2:page * 2])
                             embeds = discord.Embed(
                                 description=join + "-------------------------------",
                                 color=discord.Color(0xc088ff),
@@ -376,9 +377,8 @@ async def on_message(message):
             if str(row1[0]) == message.content.split()[1]:
                 numbers.append("".join(
                     [f"""-------------------------------\n<@{int(row1[2])}>さんの回答\n`{row1[1]}`\n\n"""]))
-                print(numbers)
         await answer_all(numbers)
-
+        
     if message.content.startswith(">answer "):
         out_words = ["しね","金！暴力！SEX！（迫真）","おっぱい","ちんこ","まんこ","殺す","ちんぽ","おちんちん","アナル","sex","セックス","オナニー","おちんぽ","ちくび",
                      "乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす",
