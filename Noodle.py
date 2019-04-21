@@ -241,7 +241,7 @@ async def on_message(message):
                     color=discord.Color(0xc088ff),
                     )
                 embed.set_footer(
-                    text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中
+                    text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中"
                 )
                 msg = await client.send_message(message.channel,embed=embed)
                 while True:
@@ -264,7 +264,7 @@ async def on_message(message):
                             color=discord.Color(0xc088ff),
                         )
                         embed.set_footer(
-                            text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中
+                            text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中"
                         )
                         await client.edit_message(msg,embed=embed)
                         await client.clear_reactions(msg)
