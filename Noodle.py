@@ -128,6 +128,7 @@ async def on_message(message):
             質問等はThe.First.Step#3454にDMでお問い合わせ下さい！
             
             ----------------------------------------------------------
+            このBOTの招待は[こちらから](<https://discordapp.com/api/oauth2/authorize?client_id=531765421070745600&permissions=392417&scope=bot>)
             """
         )
         embed.set_thumbnail(
