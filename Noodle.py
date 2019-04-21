@@ -235,7 +235,7 @@ async def on_message(message):
                     page -= 1
                 elif react.emoji == right:
                     page += 1
-                await client.edit_message(msg,embed=embed)
+                await client.delete_message(msg)
 
 
         numbers = []
@@ -319,7 +319,7 @@ async def on_message(message):
                                     page -= 1
                                 elif react.emoji == right:
                                     page += 1
-                                await client.edit_message(msg,embed=embeds)
+                                await client.delete_message(msg)
 
 
         numbers = []
