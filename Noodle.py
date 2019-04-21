@@ -234,28 +234,29 @@ async def on_message(message):
                 return
             page = 1
             while True:
-                join = "".join(numbers[(page-1)*5:page*5])
-                embed = discord.Embed(
-                    title="現在の質問リスト:",
-                    description=join + "-------------------------------",
-                    color=discord.Color(0xc088ff),
+                for row2 in db_read_count():
+                    join = "".join(numbers[(page-1)*5:page*5])
+                    embed = discord.Embed(
+                        title="現在の質問リスト:",
+                        description=join + f"-------------------------------\n\n総閲覧数:{int(row2[0])}\n総回答数:{int(row2[1])}",
+                        color=discord.Color(0xc088ff),
+                        )
+                    embed.set_footer(
+                        text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中"
                     )
-                embed.set_footer(
-                    text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中"
-                )
-                msg = await client.send_message(message.channel,embed=embed)
-                l = page != 1
-                r = page < len(numbers) / 5
-                if l:
-                    await client.add_reaction(msg,left)
-                if r:
-                    await client.add_reaction(msg,right)
-                react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
-                if react.emoji == left:
-                    page -= 1
-                elif react.emoji == right:
-                    page += 1
-                await client.delete_message(msg)
+                    msg = await client.send_message(message.channel,embed=embed)
+                    l = page != 1
+                    r = page < len(numbers) / 5
+                    if l:
+                        await client.add_reaction(msg,left)
+                        if r:
+                        await client.add_reaction(msg,right)
+                    react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
+                    if react.emoji == left:
+                        page -= 1
+                    elif react.emoji == right:
+                        page += 1
+                    await client.delete_message(msg)
 
 
         numbers = []
@@ -463,6 +464,19 @@ def db_read():
         c.close()
         con.close()
 
+def db_read_count():
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute('''SELECT total(locate_number),total(answer_id) from question;''')
+    ans = c.fetchall()
+    for row in ans:
+        yield (row[0],row[1])
+    else:
+        con.commit()
+        c.close()
+        con.close() 
+        
 def db_access(create_id,question):
     create_id = str(create_id)
     question = str(question)
