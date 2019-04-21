@@ -349,7 +349,16 @@ async def on_message(message):
                             )
                             await client.send_message(message.channel,embed=embed)
                             user=await client.get_user_info(f"{int(row[1])}")
-                            await client.send_message(user,embed=embed)
+                            embeds = discord.Embed(
+                            title="QUESTION:",
+                            description=f"<@{int(message.author.id)}>さん\n解答先:{str(row[2])}\n\n解答内容:\n\n`{message.content[14:]}`",
+                            color=discord.Color(0xc088ff),
+                            timestamp=message.timestamp
+                            )
+                            embeds.set_footer(
+                                text="時刻:"
+                            )
+                            await client.send_message(user,embed=embeds)
                             return
                         
     if message.content.startswith(">question-delete"):
