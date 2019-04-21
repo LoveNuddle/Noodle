@@ -468,7 +468,7 @@ def db_read_count():
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
-    c.execute('''SELECT total(locate_number),total(answer_id) from question;''')
+    c.execute('''SELECT sum(locate_number),sum(answer_id) from question;''')
     ans = c.fetchall()
     for row in ans:
         yield (row[0],row[1])
