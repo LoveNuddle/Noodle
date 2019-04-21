@@ -10,6 +10,7 @@ from collections import defaultdict
 
 try:
     import discord
+    from discord.ext.commands import Bot
 except ImportError:
     print("Discord.py がインストールされていません。\nDiscord.pyをインストールしてください。")
     sys.exit(1)
