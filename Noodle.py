@@ -309,7 +309,7 @@ async def on_message(message):
                             else:
                                 msg = await ok
                                 l = page != 1
-                                r = page < len(numbers) / 5
+                                r = page < len(numbers) / 2
                                 if l:
                                     await client.add_reaction(msg,left)
                                 if r:
