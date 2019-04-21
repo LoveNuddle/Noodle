@@ -338,11 +338,11 @@ async def on_message(message):
 
 
         numbers = []
-        for row,row1 in zip(db_read(),db_get_answer()):
+        for row1 in db_get_answer():
             if len(list(row1[0])) == 0:
                 return
             numbers.append("".join(
-                [f"""-------------------------------\n<@{int(row[1])}>さんの回答\n`{row1[1]}`\n\n"""]))
+                [f"""-------------------------------\n<@{int(row1[2])}>さんの回答\n`{row1[1]}`\n\n"""]))
         await answer_all(numbers)
 
     if message.content.startswith(">answer "):
@@ -489,27 +489,28 @@ def db_write(create_id,create_name,question,):
     con.close()
     return True
 
-def db_answer(create_id,answer_question):
+def db_answer(create_id,answer_question,create_name):
     create_id = str(create_id)
     answer_question = str(answer_question)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    create_name =int(create_name)
+    con = psycopg2.connect(DATABASE_URL)
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text);")
-    c.execute("INSERT INTO question_test(answer_questions,create_id) VALUES(%s,%s);",
-                (answer_question,create_id))
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
+    c.execute("INSERT INTO question_test(answer_questions,create_id,create_name) VALUES(%s,%s,%s);",
+                (answer_question,create_id,create_name))
     con.commit()
     c.close()
     con.close()
     return True
 
 def db_get_answer():
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(DATABASE_URL)
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text);")
-    c.execute('''SELECT create_id,answer_questions from question_test;''')
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
+    c.execute('''SELECT create_id,answer_questions,create_name from question_test;''')
     ans = c.fetchall()
     for row in ans:
-        yield (row[0],row[1])
+        yield (row[0],row[1],row[2])
     else:
         con.commit()
         c.close()
