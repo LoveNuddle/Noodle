@@ -233,18 +233,18 @@ async def on_message(message):
                 await client.send_message(message.channel,embed=embed)
                 return
             page = 1
-            while True:
-                for row2 in db_read_count():
-                    join = "".join(numbers[(page-1)*5:page*5])
-                    embed = discord.Embed(
-                        title="現在の質問リスト:",
-                        description=join + f"-------------------------------\n\n総閲覧数:{int(row2[0])} | 総回答数:{int(row2[1])}",
-                        color=discord.Color(0xc088ff),
-                        )
-                    embed.set_footer(
-                        text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中"
+            for row2 in db_read_count():
+                join = "".join(numbers[(page-1)*5:page*5])
+                embed = discord.Embed(
+                    title="現在の質問リスト:",
+                    description=join + f"-------------------------------\n\n総閲覧数:{int(row2[0])} | 総回答数:{int(row2[1])}",
+                    color=discord.Color(0xc088ff),
                     )
-                    msg = await client.send_message(message.channel,embed=embed)
+                embed.set_footer(
+                    text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中
+                )
+                msg = await client.send_message(message.channel,embed=embed)
+                while True:
                     l = page != 1
                     r = page < len(numbers) / 5
                     if l:
@@ -256,7 +256,18 @@ async def on_message(message):
                         page -= 1
                     elif react.emoji == right:
                         page += 1
-                    await client.delete_message(msg)
+                    for row2 in db_read_count():
+                        join = "".join(numbers[(page-1)*5:page*5])
+                        embed = discord.Embed(
+                            title="現在の質問リスト:",
+                            description=join + f"-------------------------------\n\n総閲覧数:{int(row2[0])} | 総回答数:{int(row2[1])}",
+                            color=discord.Color(0xc088ff),
+                        )
+                        embed.set_footer(
+                            text=f"質問一覧　　{math.ceil(len(numbers) / 5)}ページ中 / {page}ページ目を表示中
+                        )
+                        await client.edit_message(msg,embed=embed)
+                        await client.clear_reactions(msg)
 
 
         numbers = []
@@ -305,43 +316,53 @@ async def on_message(message):
         async def answer_all(numbers):
             if db_count_up_1(str(message.content.split()[1])):
                 page = 1 
-                while True:
-                    global ok
-                    join = "".join(numbers[(page - 1) * 2:page * 2])
-                    for row in list(db_read()):
-                        if str(row[0]) == message.content.split()[1]:
-                            embed = discord.Embed(
-                                title="QUESTION:",
-                                description=f"""<@{row[1]}>さんの質問\n\n`{str(row[2])}`\n\n閲覧数：{row[3]}\n回答数：{row[4]}\nID：{str(row[0])}\n""",
+                global ok
+                join = "".join(numbers[(page - 1) * 2:page * 2])
+                for row in list(db_read()):
+                    if str(row[0]) == message.content.split()[1]:
+                        embed = discord.Embed(
+                            title="QUESTION:",
+                            description=f"""<@{row[1]}>さんの質問\n\n`{str(row[2])}`\n\n閲覧数：{row[3]}\n回答数：{row[4]}\nID：{str(row[0])}\n""",
+                            color=discord.Color(0xc088ff),
+                        )
+                        await client.send_message(message.channel,embed=embed)
+                        for row1 in db_get_answer():
+                            if str(row1[0]) == str(row[0]) == message.content.split()[1]:
+                                embeds = discord.Embed(
+                                description=join + "-------------------------------",
                                 color=discord.Color(0xc088ff),
-                            )
-                            embedss= await client.send_message(message.channel,embed=embed)
-                            for row1 in db_get_answer():
-                                if str(row1[0]) == str(row[0]) == message.content.split()[1]:
-                                    embeds = discord.Embed(
-                                        description=join + "-------------------------------",
-                                        color=discord.Color(0xc088ff),
-                                        timestamp=message.timestamp
-                                    )
-                                    embeds.set_footer(
-                                        text="表示時刻:"
-                                    )
-                                    ok = client.send_message(message.channel,embed=embeds)
+                                    timestamp=message.timestamp
+                                )
+                                embeds.set_footer(
+                                    text="表示時刻:"
+                                )
                             else:
-                                msg = await ok
-                                l = page != 1
-                                r = page < len(numbers) / 2
-                                if l:
-                                    await client.add_reaction(msg,left)
-                                if r:
-                                    await client.add_reaction(msg,right)
-                                react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
-                                if react.emoji == left:
-                                    page -= 1
-                                elif react.emoji == right:
-                                    page += 1
-                                await client.delete_message(msg)
-                                await client.delete_message(embedss)
+                                msg = await client.send_message(message.channel,embed=embeds)
+                                while True:
+                                    l = page != 1
+                                    r = page < len(numbers) / 2
+                                    if l:
+                                        await client.add_reaction(msg,left)
+                                    if r:
+                                        await client.add_reaction(msg,right)
+                                    react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
+                                    if react.emoji == left:
+                                        page -= 1
+                                    elif react.emoji == right:
+                                        page += 1
+                                    for row1 in db_get_answer():
+                                        if str(row1[0]) == str(row[0]) == message.content.split()[1]:
+                                            embeds = discord.Embed(
+                                            description=join + "-------------------------------",
+                                            color=discord.Color(0xc088ff),
+                                                timestamp=message.timestamp
+                                            )
+                                            embeds.set_footer(
+                                                text="表示時刻:"
+                                            )
+                                        else:
+                                            await client.edit_message(msg,embed=embeds)
+                                            await client.clear_reactions(msg)
 
 
         numbers = []
