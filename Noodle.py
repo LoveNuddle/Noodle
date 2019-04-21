@@ -192,6 +192,7 @@ async def on_message(message):
                 color=discord.Color(0xc088ff),
             )
             await client.send_message(message.channel,embed=embed)
+            await client.delete_message(message)
             return
         
         ans = db_write(
@@ -347,6 +348,7 @@ async def on_message(message):
                 color=discord.Color(0xc088ff),
             )
             await client.send_message(message.channel,embed=embed)
+            await client.delete_message(message)
             return
         for row in list(db_read()):
             if str(row[0]) == message.content.split()[1]:
