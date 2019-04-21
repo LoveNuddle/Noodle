@@ -184,7 +184,16 @@ async def on_message(message):
             )
             await client.send_message(message.channel,embed=embed)
             return
-
+        
+        out_words = ["しね","金！暴力！SEX！（迫真）","おっぱい","ちんこ","まんこ","殺す","ちんぽ","おちんちん","アナル","sex","セックス","オナニー","おちんぽ","ちくび","乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす","mother fucker","金正恩","penis","fuck","死ね","殺す","アホ","赤ちゃん製造ミルク","ザー汁","ザーメン","精液","精子","こ↑こ↓","やりますねぇ"]
+        if any([True for s in out_words if s in content]):
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
+                color=discord.Color(0xc088ff),
+            )
+            await client.send_message(message.channel,embed=embed)
+            return
+        
         ans = db_write(
             str(numbers),
             int(message.author.id),
@@ -331,6 +340,14 @@ async def on_message(message):
         await answer_all(numbers)
         
     if message.content.startswith(">answer "):
+        out_words = ["しね","金！暴力！SEX！（迫真）","おっぱい","ちんこ","まんこ","殺す","ちんぽ","おちんちん","アナル","sex","セックス","オナニー","おちんぽ","ちくび","乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす","mother fucker","金正恩","penis","fuck","死ね","殺す","アホ","赤ちゃん製造ミルク","ザー汁","ザーメン","精液","精子","こ↑こ↓","やりますねぇ"]
+        if any([True for s in out_words if s in message.content[14:]]):
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\n禁止用語が入っているので解答できません！",
+                color=discord.Color(0xc088ff),
+            )
+            await client.send_message(message.channel,embed=embed)
+            return
         for row in list(db_read()):
             if str(row[0]) == message.content.split()[1]:
                 if db_count_up(str(message.content.split()[1])):
