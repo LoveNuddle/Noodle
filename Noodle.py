@@ -339,27 +339,27 @@ async def on_message(message):
                                 msg = await client.send_message(message.channel,embed=embeds)
                                 while True:
                                     if str(row1[0]) == str(row[0]) == message.content.split()[1]:
-                                    l = page != 1
-                                    r = page < len(numbers) / 2
-                                    if l:
-                                        await client.add_reaction(msg,left)
-                                    if r:
-                                        await client.add_reaction(msg,right)
-                                    react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
-                                    if react.emoji == left:
-                                        page -= 1
-                                    elif react.emoji == right:
-                                        page += 1
-                                    embeds = discord.Embed(
-                                        description=join + "-------------------------------",
-                                        color=discord.Color(0xc088ff),
-                                        timestamp=message.timestamp
-                                    )
-                                    embeds.set_footer(
-                                        text="表示時刻:"
-                                    )
-                                    await client.edit_message(msg,embed=embeds)
-                                    await client.clear_reactions(msg)
+                                        l = page != 1
+                                        r = page < len(numbers) / 2
+                                        if l:
+                                            await client.add_reaction(msg,left)
+                                        if r:
+                                            await client.add_reaction(msg,right)
+                                        react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
+                                        if react.emoji == left:
+                                            page -= 1
+                                        elif react.emoji == right:
+                                            page += 1
+                                        embeds = discord.Embed(
+                                            description=join + "-------------------------------",
+                                            color=discord.Color(0xc088ff),
+                                            timestamp=message.timestamp
+                                        )
+                                        embeds.set_footer(
+                                            text="表示時刻:"
+                                        )
+                                        await client.edit_message(msg,embed=embeds)
+                                        await client.clear_reactions(msg)
 
         numbers = []
         for row1 in db_get_answer():
