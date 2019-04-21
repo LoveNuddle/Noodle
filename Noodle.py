@@ -63,7 +63,7 @@ async def on_member_remove(member):
 
 @client.event
 async def on_message(message):
-    if message.content == "reset":
+    if message.content == ">>>reset":
         if db_reset_all_role() == True:
             await client.send_message(message.channel,"ok")
             return
@@ -169,15 +169,6 @@ async def on_message(message):
                 text="作成時刻:"
             )
             await client.send_message(message.channel,embed=embed)
-            embed = discord.Embed(
-                description=f"{message.author.mention}さん\n\n`{content}`\n\nID:{numbers}",
-                color=discord.Color(0xc088ff),
-                timestamp=message.timestamp
-            )
-            embed.set_footer(
-                text="作成時刻:"
-            )
-            await client.send_message(client.get_channel("549081574583566376"),embed=embed)
             return
 
     if message.content.startswith(">q-c"):
@@ -209,15 +200,6 @@ async def on_message(message):
                 text="作成時刻:"
             )
             await client.send_message(message.channel,embed=embed)
-            embed = discord.Embed(
-                description=f"{message.author.mention}さん\n\n`{content}`\n\nID:{numbers}",
-                color=discord.Color(0xc088ff),
-                timestamp=message.timestamp
-            )
-            embed.set_footer(
-                text="作成時刻:"
-            )
-            await client.send_message(client.get_channel("549081574583566376"),embed=embed)
             return
 
     if message.content == ">question-list":
