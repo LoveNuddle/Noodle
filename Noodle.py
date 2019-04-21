@@ -611,4 +611,4 @@ def db_reset_all_role():
     con.close()
     return True
 
-client.run(os.environ.get("TOKEN"))
+client.run(os.environ.get("TOKEN")
