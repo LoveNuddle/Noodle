@@ -320,14 +320,14 @@ async def on_message(message):
                                 elif react.emoji == right:
                                     page += 1
                                 await client.delete_message(msg)
+                                await client.delete_message(embedss)
 
 
         numbers = []
         for row1 in db_get_answer():
-            if len(list(row1[0])) == 0:
-                return
-            numbers.append("".join(
-                [f"""-------------------------------\n<@{int(row1[2])}>さんの回答\n`{row1[1]}`\n\n"""]))
+            if str(row1[0]) == message.content.split()[1]:
+                numbers.append("".join(
+                    [f"""-------------------------------\n<@{int(row1[2])}>さんの回答\n`{row1[1]}`\n\n"""]))
         await answer_all(numbers)
         
     if message.content.startswith(">answer "):
