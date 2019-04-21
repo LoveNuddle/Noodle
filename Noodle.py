@@ -238,7 +238,7 @@ async def on_message(message):
                     join = "".join(numbers[(page-1)*5:page*5])
                     embed = discord.Embed(
                         title="現在の質問リスト:",
-                        description=join + f"-------------------------------\n\n総閲覧数:{int(row2[0])}\n総回答数:{int(row2[1])}",
+                        description=join + f"-------------------------------\n\n総閲覧数:{int(row2[0])} | 総回答数:{int(row2[1])}",
                         color=discord.Color(0xc088ff),
                         )
                     embed.set_footer(
