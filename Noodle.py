@@ -348,18 +348,18 @@ async def on_message(message):
             numbers.append("".join(
                 [f"""-------------------------------\n<@{int(row1[2])}>さんの回答\n`{row1[1]}`\n\n"""]))
         await answer_all(numbers)
-
+        
     if message.content.startswith(">answer "):
         for row in list(db_read()):
             if str(row[0]) == message.content.split()[1]:
                 if db_count_up(str(message.content.split()[1])):
                     global counts
                     counts += 1
-                    if db_answer(message.content.split()[1],message.content[14:]) == True:
+                    if db_answer(message.content.split()[1],message.content[14:],int(message.author.id)) == True:
                         for row1 in db_get_answer():
                             embed = discord.Embed(
                             title="QUESTION:",
-                            description=f"<@{int(row[1])}>さん\n解答内容:\n\n`{row1[1]}`",
+                            description=f"<@{int(message.author.id)}>さん\n解答内容:\n\n`{row1[1]}`",
                             color=discord.Color(0xc088ff),
                             timestamp=message.timestamp
                             )
@@ -368,7 +368,7 @@ async def on_message(message):
                             )
                             await client.send_message(message.channel,embed=embed)
                             return
-
+                        
     if message.content.startswith(">question-delete"):
         for row in list(db_read()):
             if int(row[1]) == int(message.author.id):
