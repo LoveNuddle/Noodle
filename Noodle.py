@@ -117,7 +117,17 @@ async def on_message(message):
             ----------------------------------------------------------
             `>question-list`
             ↳今までされた質問すべてを閲覧できる！
+            
+            ----------------------------------------------------------
+            `>best-answer 解答識別ID`
+            ↳ベストアンサー機能です！
+            ↳自分がお世話になった解答にお礼代わりに送りましょう！
+            ↳↳[例:>best-answer 0iKV5]
 
+            ----------------------------------------------------------
+            `>answer-top`
+            ↳ベストアンサーされた回数ランキングです！
+            
             ----------------------------------------------------------
             `>question-delete 識別ID`
             ↳入力したIDの質問を削除できます
@@ -377,9 +387,23 @@ async def on_message(message):
             if str(row1[0]) == message.content.split()[1]:
                 numbers.append("".join(
                     [f"""-------------------------------\n<@{int(row1[2])}>さんの回答\n`{row1[1]}`\n\n"""]))
+                print(numbers)
         await answer_all(numbers)
-        
+
     if message.content.startswith(">answer "):
+        def randomname(n):
+            a = ''.join(random.choices(string.ascii_letters + string.digits,k=n))
+            return a
+
+        if message.content[14:] == "":
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\nメッセージを入力してくれよな！",
+                color=discord.Color(0xc088ff),
+            )
+            await client.send_message(message.channel,embed=embed)
+            return
+
+        numbers = randomname(5)
         out_words = ["しね","金！暴力！SEX！（迫真）","おっぱい","ちんこ","まんこ","殺す","ちんぽ","おちんちん","アナル","sex","セックス","オナニー","おちんぽ","ちくび",
                      "乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす",
                      "mother fucker","金正恩","penis","fuck","死ね","殺す","アホ","赤ちゃん製造ミルク","ザー汁","ザーメン","精液","精子","こ↑こ↓",
@@ -397,29 +421,93 @@ async def on_message(message):
                 if db_count_up(str(message.content.split()[1])):
                     global counts
                     counts += 1
-                    if db_answer(message.content.split()[1],message.content[14:],int(message.author.id)) == True:
+                    if db_answer(message.content.split()[1],message.content[14:],int(message.author.id),str(numbers)) == True:
                         embed = discord.Embed(
-                                title="QUESTION:",
-                                description=f"<@{int(message.author.id)}>さん\n解答内容:\n\n`{message.content[14:]}`",
-                                color=discord.Color(0xc088ff),
-                                timestamp=message.timestamp
-                        )
-                        embed.set_footer(
-                        text="時刻:"
-                        )
-                        await client.send_message(message.channel,embed=embed)
-                        user = await client.get_user_info(f"{int(row[1])}")
-                        embeds = discord.Embed(
                             title="QUESTION:",
-                            description=f"<@{int(message.author.id)}>さん\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{message.content[14:]}`",
+                            description=f"<@{int(message.author.id)}>さん\n解答内容:\n\n`{message.content[14:]}`",
                             color=discord.Color(0xc088ff),
                             timestamp=message.timestamp
                         )
-                        embeds.set_footer(
+                        embed.set_footer(
                             text="時刻:"
                         )
-                        await client.send_message(user,embed=embeds)
-                        return
+                        await client.send_message(message.channel,embed=embed)
+                        for row1 in db_get_answer():
+                            if int(row1[2]) == int(message.author.id):
+                                user = await client.get_user_info(f"{int(row[1])}")
+                                embeds = discord.Embed(
+                                    title="QUESTION:",
+                                    description=f"<@{int(message.author.id)}>さん\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{message.content[14:]}`\n\n解答識別ID:{numbers}",
+                                    color=discord.Color(0xc088ff),
+                                    timestamp=message.timestamp
+                                )
+                                embeds.set_footer(
+                                    text="時刻:"
+                                )
+                                await client.send_message(user,embed=embeds)
+                                return
+
+    if message.content.startswith(">best-answer"):
+        if db_get_best_answer(str(message.content.split()[1])) == True:
+            embed = discord.Embed(
+                description=f"この質問にはもうすでにベストアンサーがついてるよ！",
+                color=discord.Color(0xc088ff),
+                timestamp=message.timestamp
+            )
+            embed.set_footer(
+                text="時刻:"
+            )
+            await client.send_message(message.channel,embed=embed)
+            return
+        else:
+            for row,row1 in zip(list(db_read()),db_get_answer()):
+                if str(row1[3]) == message.content.split()[1]:
+                    if db_write_best_answer(str(message.content.split()[1])) == True:
+                        if db_count_up_2(str(message.content.split()[1])):
+                            if db_access_answer(str(message.content.split()[1]),str(row1[1])):
+                                user = await client.get_user_info(f"{int(row1[2])}")
+                                embeds = discord.Embed(
+                                    title="QUESTION:",
+                                    description=f"<@{int(row1[2])}>さんの回答をベストアンサーにしました！",
+                                    color=discord.Color(0xc088ff),
+                                    timestamp=message.timestamp
+                                )
+                                embeds.set_footer(
+                                    text="時刻:"
+                                )
+                                await client.send_message(message.channel,embed=embeds)
+                                embeds = discord.Embed(
+                                    title="QUESTION:",
+                                    description=f"あなたの回答がベストアンサーに認定されました！\n\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{row1[1]}`",
+                                    color=discord.Color(0xc088ff),
+                                    timestamp=message.timestamp
+                                )
+                                embeds.set_footer(
+                                    text="時刻:"
+                                )
+                                await client.send_message(user,embed=embeds)
+                                return
+
+    if message.content == ">answer-top":
+        async def send(member_data):
+            embed = discord.Embed(
+                title="Best-Answer-Top10",
+                description=member_data
+            )
+            await client.send_message(message.channel,embed=embed)
+
+        i = 1
+        member_data = ""
+        for row in db_get_answer():
+            print(row)
+            member_data += "{0}位: <@{1}> [`合計:{2}回`]\n".format(i,row[2],row[4])
+            if i % 10 == 0:
+                await send(member_data)
+                member_data = ""
+            i+= 1
+        else:
+            await send(member_data)
+            return
 
     if message.content.startswith(">question-delete"):
         for row in list(db_read()):
@@ -443,7 +531,7 @@ async def on_message(message):
             )
             await client.send_message(message.channel,embed=embed)
             return
-
+    
     if message.content.startswith(">>question-delete"):
         for row in list(db_read()):
             kengensya = ["304932786286886912","439725181389373442"]
@@ -464,26 +552,11 @@ async def on_message(message):
                 await client.send_message(message.channel,embed=embed)
                 return
 
-    if message.server.id == "521143812278714378":
-        global count
-        check = await client.wait_for_message(timeout=4,author=message.author)
-        if check:
-            count += 1
-            print(count)
-            if count > 10:
-                async for log in client.logs_from(message.channel,limit=100):
-                    if log.author.id == message.author.id:
-                        await client.delete_message(log)
-                await client.send_message(message.channel,f"{message.author.mention}の言動はSPAMに該当します。つきましては上記の文を削除致しました。")
-                return
-        if check is None:
-            count = 0
-            return
-        
 def db_read():
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
     c.execute('''SELECT create_id,create_name,question,locate_number,answer_id from question;''')
     ans = c.fetchall()
     for row in ans:
@@ -493,10 +566,12 @@ def db_read():
         c.close()
         con.close()
 
+
 def db_read_count():
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
     c.execute('''SELECT sum(locate_number),sum(answer_id) from question;''')
     ans = c.fetchall()
     for row in ans:
@@ -504,16 +579,17 @@ def db_read_count():
     else:
         con.commit()
         c.close()
-        con.close() 
-        
+        con.close()
+
+
 def db_access(create_id,question):
     create_id = str(create_id)
     question = str(question)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
-    c.execute("UPDATE question set question=%s where create_id=%s;",(question,create_id))
+    c.execute("""UPDATE question set question=%s where create_id=%s;""",(question,create_id))
     con.commit()
     c.close()
     con.close()
@@ -522,72 +598,141 @@ def db_access(create_id,question):
 
 def db_count_up(create_id):
     create_id = str(create_id)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
-    "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
     c.execute("UPDATE question set answer_id = answer_id + 1 where create_id=%s;",(create_id,))
     con.commit()
     c.close()
     con.close()
     return True
 
+
 def db_count_up_1(create_id):
     create_id = str(create_id)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
     c.execute("UPDATE question set locate_number = locate_number + 1 where create_id=%s;",(create_id,))
     con.commit()
     c.close()
     con.close()
     return True
 
+
 def db_write(create_id,create_name,question,):
     create_id = str(create_id)
     create_name = int(create_name)
     question = str(question)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
-    c.execute("INSERT INTO question(create_id, create_name, question,locate_number,answer_id) VALUES(%s,%s,%s,0,0);",(create_id,create_name,question))
+    c.execute("INSERT INTO question(create_id, create_name, question,locate_number,answer_id) VALUES(%s,%s,%s,0,0);",
+              (create_id,create_name,question))
     con.commit()
     c.close()
     con.close()
     return True
 
-def db_answer(create_id,answer_question,create_name):
+def db_count_up_2(create_id):
     create_id = str(create_id)
-    answer_question = str(answer_question)
-    create_name =int(create_name)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
-    c.execute("INSERT INTO question_test(answer_questions,create_id,create_name) VALUES(%s,%s,%s);",
-                (answer_question,create_id,create_name))
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
+    c.execute("UPDATE question_test set answer_number = answer_number + 1 where number_id=%s;",(create_id,))
     con.commit()
     c.close()
     con.close()
     return True
 
-def db_get_answer():
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+def db_get_answer_number(create_name):
+    create_name = int(create_name)
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
-    c.execute('''SELECT create_id,answer_questions,create_name from question_test;''')
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
+    c.execute('''SELECT create_name from question_test where create_name=%s;''',(create_name,))
     ans = c.fetchall()
     for row in ans:
-        yield (row[0],row[1],row[2])
+        yield (row)
     else:
         con.commit()
         c.close()
         con.close()
 
+def db_get_answer():
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
+    c.execute('''SELECT create_id,answer_questions,create_name,number_id,answer_number from question_test order by answer_number desc;''')
+    ans = c.fetchall()
+    for row in ans:
+        yield (row[0],row[1],row[2],row[3],row[4])
+    else:
+        con.commit()
+        c.close()
+        con.close()
+
+def db_access_answer(create_id,answer_question):
+    create_id = str(create_id)
+    answer_question = str(answer_question)
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute(
+            "CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
+    c.execute("""UPDATE question_test set answer_questions='Best-Answer!!\n' || %s where number_id=%s;""",(answer_question,create_id,))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_answer(create_id,answer_question,create_name,number_id):
+    create_id = str(create_id)
+    answer_question = str(answer_question)
+    create_name = int(create_name)
+    number_id = str(number_id)
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
+    c.execute("INSERT INTO question_test(answer_questions, create_id, create_name, number_id,answer_number) VALUES(%s,%s,%s,%s,0);",
+              (answer_question,create_id,create_name,number_id))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_write_best_answer(create_id):
+    create_id = str(create_id)
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question_answer(create_id varchar);")
+    c.execute("INSERT INTO question_answer(create_id) VALUES(%s);",
+              (create_id,))
+    con.commit()
+    c.close()
+    con.close()
+    return True
+
+def db_get_best_answer(create_id):
+    create_id = str(create_id)
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS question_answer(create_id varchar);")
+    c.execute('SELECT * FROM question_answer WHERE create_id=%s;',(create_id,))
+    if c.fetchall():
+        con.commit()
+        c.close()
+        con.close()
+        return True
+
 def db_reset_question(create_name,create_id):
     create_name = int(create_name)
     create_id = str(create_id)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -597,9 +742,10 @@ def db_reset_question(create_name,create_id):
     con.close()
     return True
 
+
 def db_reset_all_question(create_id):
     create_id = str(create_id)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -611,7 +757,7 @@ def db_reset_all_question(create_id):
 
 
 def db_reset_all_role():
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
     c.execute(
@@ -623,4 +769,5 @@ def db_reset_all_role():
     con.close()
     return True
 
-client.run(os.environ.get("TOKEN")
+
+client.run(os.environ.get("TOKEN"))
