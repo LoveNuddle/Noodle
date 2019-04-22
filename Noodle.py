@@ -16,9 +16,9 @@ except ImportError:
     sys.exit(1)
 # -------------------------------------------------------------------------------------------------------------------
 client = Bot(command_prefix='&',pm_help=True)
-all_member = ""
-get_user = ""
-get_bot = ""
+all_member = "569835479508451338"
+get_user = "569835527780433920"
+get_bot = "569835528992849930"
 count = 0
 counts = 0
 number = 0
@@ -77,7 +77,7 @@ async def on_message(message):
         if message.author.server_permissions.administrator:
             await client.delete_message(message)
             counter = 0
-            all_message = ""
+            all_message = "569835558642384896"
             channel_name = client.get_channel(all_message)
             for i in message.server.channels:
                 async for log in client.logs_from(i,limit=99999999999):
