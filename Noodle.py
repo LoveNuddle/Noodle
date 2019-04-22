@@ -553,7 +553,7 @@ async def on_message(message):
                 return
 
 def db_read():
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -568,7 +568,7 @@ def db_read():
 
 
 def db_read_count():
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -585,7 +585,7 @@ def db_read_count():
 def db_access(create_id,question):
     create_id = str(create_id)
     question = str(question)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -598,7 +598,7 @@ def db_access(create_id,question):
 
 def db_count_up(create_id):
     create_id = str(create_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -611,7 +611,7 @@ def db_count_up(create_id):
 
 def db_count_up_1(create_id):
     create_id = str(create_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -626,7 +626,7 @@ def db_write(create_id,create_name,question,):
     create_id = str(create_id)
     create_name = int(create_name)
     question = str(question)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -639,7 +639,7 @@ def db_write(create_id,create_name,question,):
 
 def db_count_up_2(create_id):
     create_id = str(create_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
     c.execute("UPDATE question_test set answer_number = answer_number + 1 where number_id=%s;",(create_id,))
@@ -650,7 +650,7 @@ def db_count_up_2(create_id):
 
 def db_get_answer_number(create_name):
     create_name = int(create_name)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
     c.execute('''SELECT create_name from question_test where create_name=%s;''',(create_name,))
@@ -663,7 +663,7 @@ def db_get_answer_number(create_name):
         con.close()
 
 def db_get_answer():
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
     c.execute('''SELECT create_id,answer_questions,create_name,number_id,answer_number from question_test order by answer_number desc;''')
@@ -678,7 +678,7 @@ def db_get_answer():
 def db_access_answer(create_id,answer_question):
     create_id = str(create_id)
     answer_question = str(answer_question)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
             "CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
@@ -693,7 +693,7 @@ def db_answer(create_id,answer_question,create_name,number_id):
     answer_question = str(answer_question)
     create_name = int(create_name)
     number_id = str(number_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
     c.execute("INSERT INTO question_test(answer_questions, create_id, create_name, number_id,answer_number) VALUES(%s,%s,%s,%s,0);",
@@ -705,7 +705,7 @@ def db_answer(create_id,answer_question,create_name,number_id):
 
 def db_write_best_answer(create_id):
     create_id = str(create_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question_answer(create_id varchar);")
@@ -718,7 +718,7 @@ def db_write_best_answer(create_id):
 
 def db_get_best_answer(create_id):
     create_id = str(create_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question_answer(create_id varchar);")
@@ -732,7 +732,7 @@ def db_get_best_answer(create_id):
 def db_reset_question(create_name,create_id):
     create_name = int(create_name)
     create_id = str(create_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -745,7 +745,7 @@ def db_reset_question(create_name,create_id):
 
 def db_reset_all_question(create_id):
     create_id = str(create_id)
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
         "CREATE TABLE IF NOT EXISTS question(create_id varchar, create_name Bigint, question text, answer_id INT, answer_question text, locate_number int);")
@@ -757,7 +757,7 @@ def db_reset_all_question(create_id):
 
 
 def db_reset_all_role():
-    con = psycopg2.connectos(os.environ.get("DATABASE_URL"))
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint);")
     c.execute(
