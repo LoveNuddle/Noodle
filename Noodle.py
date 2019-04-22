@@ -639,7 +639,7 @@ def db_write(create_id,create_name,question,):
 
 def db_count_up_2(create_name):
     create_name = int(create_name)
-    con = psycopg2.connect(DATABASE_URL)
+    con = psycopg2.connect("DATABASE_URL")
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
     c.execute("UPDATE question_test set answer_number = answer_number + 1 where create_name=%s;",(create_name,))
