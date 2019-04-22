@@ -463,7 +463,7 @@ async def on_message(message):
             for row,row1 in zip(list(db_read()),db_get_answer()):
                 if str(row1[3]) == message.content.split()[1]:
                     if db_write_best_answer(str(message.content.split()[1])) == True:
-                        if db_count_up_2(str(message.content.split()[1])):
+                        if db_count_up_2(int(row1[2])):
                             if db_access_answer(str(message.content.split()[1]),str(row1[1])):
                                 user = await client.get_user_info(f"{int(row1[2])}")
                                 embeds = discord.Embed(
@@ -637,12 +637,12 @@ def db_write(create_id,create_name,question,):
     con.close()
     return True
 
-def db_count_up_2(create_id):
-    create_id = str(create_id)
-    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+def db_count_up_2(create_name):
+    create_name = int(create_name)
+    con = psycopg2.connect(DATABASE_URL)
     c = con.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
-    c.execute("UPDATE question_test set answer_number = answer_number + 1 where number_id=%s;",(create_id,))
+    c.execute("UPDATE question_test set answer_number = answer_number + 1 where create_name=%s;",(create_name,))
     con.commit()
     c.close()
     con.close()
