@@ -48,21 +48,21 @@ async def on_ready():
 # -------------------------------------------------------------------------------------------------------------------
 @client.event
 async def on_member_join(member):
-    await client.edit_channel(client.get_channel(all_member),name="総メンバー数: {}".format(len(member.server.members)))
-    await client.edit_channel(client.get_channel(get_user),name="ユーザー数: {}".format(
+    await client.edit_channel(client.get_channel(all_member),name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
+    await client.edit_channel(client.get_channel(get_user),name="ユーザーカウント｜USER COUNT : {}".format(
         len([member for member in member.server.members if not member.bot])))
     await client.edit_channel(client.get_channel(get_bot),
-                              name="ボットの数: {}".format(len([member for member in member.server.members if member.bot])))
+                              name="ボットカウント｜BOT COUNT : {}".format(len([member for member in member.server.members if member.bot])))
 
 
 # -------------------------------------------------------------------------------------------------------------------
 @client.event
 async def on_member_remove(member):
-    await client.edit_channel(client.get_channel(all_member),name="総メンバー数: {}".format(len(member.server.members)))
-    await client.edit_channel(client.get_channel(get_user),name="ユーザー数: {}".format(
+    await client.edit_channel(client.get_channel(all_member),name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
+    await client.edit_channel(client.get_channel(get_user),name="ユーザーカウント｜USER COUNT : {}".format(
         len([member for member in member.server.members if not member.bot])))
     await client.edit_channel(client.get_channel(get_bot),
-                              name="ボットの数: {}".format(len([member for member in member.server.members if member.bot])))
+                              name="ボットカウント｜BOT COUNT : {}".format(len([member for member in member.server.members if member.bot])))
 
 
 @client.event
@@ -83,7 +83,7 @@ async def on_message(message):
                 async for log in client.logs_from(i,limit=99999999999):
                     if log.server.id == message.server.id:
                         counter += 1
-                await client.edit_channel(channel_name,name="総メッセージ数: {}".format(counter))
+            await client.edit_channel(channel_name,name="メッセージカウント｜MESSAGE COUNT : {}".format(counter))
             return
 
     if message.content == ">help":
@@ -335,10 +335,10 @@ async def on_message(message):
                             color=discord.Color(0xc088ff),
                         )
                         await client.send_message(message.channel,embed=embed)
-                for row1,row in zip(db_get_answer(),list(db_read())):
+                for row1 in db_get_answer():
                     page = 1
                     join = "".join(numbers[(page - 1) * 2:page * 2])
-                    if str(row1[0]) == str(row[0]) == message.content.split()[1]:
+                    if str(row1[0]) == message.content.split()[1]:
                         embeds = discord.Embed(
                             description=join + "-------------------------------",
                             color=discord.Color(0xc088ff),
