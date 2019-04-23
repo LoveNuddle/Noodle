@@ -473,18 +473,19 @@ async def on_message(message):
                         await client.send_message(message.channel,embed=embed)
                         for row1 in db_get_answer():
                             if int(row1[2]) == int(message.author.id):
-                                user = await client.get_user_info(f"{int(row[1])}")
-                                embeds = discord.Embed(
-                                    title="QUESTION:",
-                                    description=f"<@{int(message.author.id)}>さん\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{message.content[14:]}`\n\n解答識別ID:{numbers}",
-                                    color=discord.Color(0xc088ff),
-                                    timestamp=message.timestamp
-                                )
-                                embeds.set_footer(
-                                    text="時刻:"
-                                )
-                                await client.send_message(user,embed=embeds)
-                                return
+                                if str(row1[0]) == str(row[0]):
+                                    user = await client.get_user_info(f"{int(row[1])}")
+                                    embeds = discord.Embed(
+                                        title="QUESTION:",
+                                        description=f"<@{int(message.author.id)}>さん\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{message.content[14:]}`\n\n解答識別ID:{numbers}",
+                                        color=discord.Color(0xc088ff),
+                                        timestamp=message.timestamp
+                                    )
+                                    embeds.set_footer(
+                                        text="時刻:"
+                                    )
+                                    await client.send_message(user,embed=embeds)
+                                    return
 
     if message.content.startswith(">best-answer"):
         if db_get_best_answer(str(message.content.split()[1])) == True:
