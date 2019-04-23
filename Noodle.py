@@ -518,28 +518,29 @@ async def on_message(message):
                         return
                     if db_write_best_answer(str(message.content.split()[1])) == True:
                         if db_access_answer(str(message.content.split()[1]),str(row1[1])):
-                            user = await client.get_user_info(f"{int(row1[2])}")
-                            embeds = discord.Embed(
-                                title="QUESTION:",
-                                description=f"<@{int(row1[2])}>さんの回答をベストアンサーにしました！",
-                                color=discord.Color(0xc088ff),
-                                timestamp=message.timestamp
-                            )
-                            embeds.set_footer(
-                                text="時刻:"
-                            )
-                            await client.send_message(message.channel,embed=embeds)
-                            embeds = discord.Embed(
-                                title="QUESTION:",
-                                description=f"あなたの回答がベストアンサーに認定されました！\n\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{row1[1]}`",
-                                color=discord.Color(0xc088ff),
-                                timestamp=message.timestamp
-                            )
-                            embeds.set_footer(
-                                text="時刻:"
-                            )
-                            await client.send_message(user,embed=embeds)
-                            return db_count_up_2(int(row1[2])) == True
+                            if str(row1[0]) == str(row[0]):
+                                user = await client.get_user_info(f"{int(row1[2])}")
+                                embeds = discord.Embed(
+                                    title="QUESTION:",
+                                    description=f"<@{int(row1[2])}>さんの回答をベストアンサーにしました！",
+                                    color=discord.Color(0xc088ff),
+                                    timestamp=message.timestamp
+                                )
+                                embeds.set_footer(
+                                    text="時刻:"
+                                )
+                                await client.send_message(message.channel,embed=embeds)
+                                embeds = discord.Embed(
+                                    title="QUESTION:",
+                                    description=f"あなたの回答がベストアンサーに認定されました！\n\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{row1[1]}`",
+                                    color=discord.Color(0xc088ff),
+                                    timestamp=message.timestamp
+                                )
+                                embeds.set_footer(
+                                    text="時刻:"
+                                )
+                                await client.send_message(user,embed=embeds)
+                                return db_count_up_2(int(row1[2])) == True
 
     if message.content == ">answer-top":
         async def send(member_data):
