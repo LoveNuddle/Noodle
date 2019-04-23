@@ -48,21 +48,29 @@ async def on_ready():
 # -------------------------------------------------------------------------------------------------------------------
 @client.event
 async def on_member_join(member):
-    await client.edit_channel(client.get_channel(all_member),name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
+    if not member.server.id == "521143812278714378":
+        return
+    await client.edit_channel(client.get_channel(all_member),
+                              name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
     await client.edit_channel(client.get_channel(get_user),name="ユーザーカウント｜USER COUNT : {}".format(
         len([member for member in member.server.members if not member.bot])))
     await client.edit_channel(client.get_channel(get_bot),
-                              name="ボットカウント｜BOT COUNT : {}".format(len([member for member in member.server.members if member.bot])))
+                              name="ボットカウント｜BOT COUNT : {}".format(
+                                  len([member for member in member.server.members if member.bot])))
 
 
 # -------------------------------------------------------------------------------------------------------------------
 @client.event
 async def on_member_remove(member):
-    await client.edit_channel(client.get_channel(all_member),name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
+    if not member.server.id == "521143812278714378":
+        return
+    await client.edit_channel(client.get_channel(all_member),
+                              name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
     await client.edit_channel(client.get_channel(get_user),name="ユーザーカウント｜USER COUNT : {}".format(
         len([member for member in member.server.members if not member.bot])))
     await client.edit_channel(client.get_channel(get_bot),
-                              name="ボットカウント｜BOT COUNT : {}".format(len([member for member in member.server.members if member.bot])))
+                              name="ボットカウント｜BOT COUNT : {}".format(
+                                  len([member for member in member.server.members if member.bot])))
 
 
 @client.event
@@ -85,12 +93,17 @@ async def on_message(message):
                         counter += 1
             await client.edit_channel(channel_name,name="メッセージカウント｜MESSAGE COUNT : {}".format(counter))
             return
+    help_message = ["""
+            -------------------------------
+            このBOTはプロデュースが𝗠𝗞𝗠𝗞𝟭𝟭𝟬𝟭™#3577
+            組み立てをThe.First.Step#3454が行いました！
+            質問等はThe.First.Step#3454にDMでお問い合わせ下さい！
 
-    if message.content == ">help":
-        embed = discord.Embed(
-            title='**Help**',
-            color=discord.Color(0xc088ff),
-            description="""
+            -------------------------------
+            このBOTの招待は[こちらから](<https://discordapp.com/api/oauth2/authorize?client_id=531765421070745600&permissions=392417&scope=bot>)
+            
+            -------------------------------""",
+            """
             Command一覧
             ここでは識別IDを`[0iKV5]`で例えています。
             実際は違いますのでご注意を。
@@ -109,14 +122,34 @@ async def on_message(message):
             ※このコマンドは自分の質問しか編集できません。
 
             -------------------------------
-            `>answer 識別ID 回答内容`
-            ↳これは誰でも回答できます！
-            ↳自分が質問に答える際はこれを使用してください。
-            ↳↳[例:>answer 0iKV5 地球が赤いわけないだろ...]
+            `>question-delete 識別ID`
+            ↳入力したIDの質問を削除できます
+            ↳解決した問題などはこれで削除しましょう。
+            ↳↳[例:>question-delete 0iKV5]
+            ※このコマンドは自分の質問しか削除できません。
 
             -------------------------------
             `>question-list`
             ↳今までされた質問すべてを閲覧できる！
+            
+            -------------------------------
+            `>locate 識別ID`
+            ↳入力したIDの詳細が見れます。
+            ↳今までに回答された内容を閲覧可能です！
+            ↳↳[例:>locate 0iKV5]
+            
+            -------------------------------
+            """,
+            """
+            Command一覧
+            ここでは識別IDを`[0iKV5]`で例えています。
+            実際は違いますのでご注意を。
+            
+            -------------------------------
+            `>answer 識別ID 回答内容`
+            ↳これは誰でも回答できます！
+            ↳自分が質問に答える際はこれを使用してください。
+            ↳↳[例:>answer 0iKV5 地球が赤いわけないだろ...]
             
             -------------------------------
             `>best-answer 解答識別ID`
@@ -127,33 +160,42 @@ async def on_message(message):
             -------------------------------
             `>answer-top`
             ↳ベストアンサーされた回数ランキングです！
-            
-            -------------------------------
-            `>question-delete 識別ID`
-            ↳入力したIDの質問を削除できます
-            ↳解決した問題などはこれで削除しましょう。
-            ↳↳[例:>question-delete 0iKV5]
-            ※このコマンドは自分の質問しか削除できません。
 
-            -------------------------------
-            `>locate 識別ID`
-            ↳入力したIDの詳細が見れます。
-            ↳今までに回答された内容を閲覧可能です！
-            ↳↳[例:>locate 0iKV5]
+            -------------------------------"""]
 
-            -------------------------------
-            このBOTはプロデュースが𝗠𝗞𝗠𝗞𝟭𝟭𝟬𝟭™#3577
-            組み立てをThe.First.Step#3454が行いました！
-            質問等はThe.First.Step#3454にDMでお問い合わせ下さい！
-            
-            -------------------------------
-            このBOTの招待は[こちらから](<https://discordapp.com/api/oauth2/authorize?client_id=531765421070745600&permissions=392417&scope=bot>)
-            """
+    if message.content == ">help":
+        index = 0
+        embed = discord.Embed(
+            title="Help一覧:",
+            description=help_message[index],
+            color=discord.Color(0xc088ff),
         )
         embed.set_thumbnail(
-            url="https://pbs.twimg.com/profile_images/790896010176237568/a8QtyZLF_400x400.jpg"
+            url="https://cdn.discordapp.com/avatars/{0.id}/{0.avatar}.png?size=1024".format(client.user)
         )
-        await client.send_message(message.channel,embed=embed)
+        msg = await client.send_message(message.channel,embed=embed)
+        while True:
+            l = index != 0
+            r = index != len(help_message) - 1
+            if l:
+                await client.add_reaction(msg,left)
+            if r:
+                await client.add_reaction(msg,right)
+            react,user = await client.wait_for_reaction(check=predicate(msg,l,r))
+            if react.emoji == left:
+                index -= 1
+            elif react.emoji == right:
+                index += 1
+            embed = discord.Embed(
+                title="Help一覧:",
+                description=help_message[index],
+                color=discord.Color(0xc088ff),
+            )
+            embed.set_thumbnail(
+                url="https://cdn.discordapp.com/avatars/{0.id}/{0.avatar}.png?size=1024".format(client.user)
+            )
+            await client.edit_message(msg,embed=embed)
+            await client.clear_reactions(msg)
 
     if message.content.startswith(">question-create"):
         def randomname(n):
@@ -462,54 +504,76 @@ async def on_message(message):
         else:
             for row,row1 in zip(list(db_read()),db_get_answer()):
                 if str(row1[3]) == message.content.split()[1]:
+                    if int(row1[2]) == int(message.author.id):
+                        embed = discord.Embed(
+                            description=f"{message.author.mention}さん\n自分の回答はベストアンサーすることができません...",
+                            color=discord.Color(0xc088ff),
+                        )
+                        await client.send_message(message.channel,embed=embed)
+                        return
+                    if message.content.split()[1] == "":
+                        embed = discord.Embed(
+                            description=f"{message.author.mention}さん\nメッセージを入力してくれよな！",
+                            color=discord.Color(0xc088ff),
+                        )
+                        await client.send_message(message.channel,embed=embed)
+                        return
                     if db_write_best_answer(str(message.content.split()[1])) == True:
-                        if db_count_up_2(int(row1[2])):
-                            if db_access_answer(str(message.content.split()[1]),str(row1[1])):
-                                user = await client.get_user_info(f"{int(row1[2])}")
-                                embeds = discord.Embed(
-                                    title="QUESTION:",
-                                    description=f"<@{int(row1[2])}>さんの回答をベストアンサーにしました！",
-                                    color=discord.Color(0xc088ff),
-                                    timestamp=message.timestamp
-                                )
-                                embeds.set_footer(
-                                    text="時刻:"
-                                )
-                                await client.send_message(message.channel,embed=embeds)
-                                embeds = discord.Embed(
-                                    title="QUESTION:",
-                                    description=f"あなたの回答がベストアンサーに認定されました！\n\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{row1[1]}`",
-                                    color=discord.Color(0xc088ff),
-                                    timestamp=message.timestamp
-                                )
-                                embeds.set_footer(
-                                    text="時刻:"
-                                )
-                                await client.send_message(user,embed=embeds)
-                                return
+                        if db_access_answer(str(message.content.split()[1]),str(row1[1])):
+                            user = await client.get_user_info(f"{int(row1[2])}")
+                            embeds = discord.Embed(
+                                title="QUESTION:",
+                                description=f"<@{int(row1[2])}>さんの回答をベストアンサーにしました！",
+                                color=discord.Color(0xc088ff),
+                                timestamp=message.timestamp
+                            )
+                            embeds.set_footer(
+                                text="時刻:"
+                            )
+                            await client.send_message(message.channel,embed=embeds)
+                            embeds = discord.Embed(
+                                title="QUESTION:",
+                                description=f"あなたの回答がベストアンサーに認定されました！\n\n解答先: `{str(row[2])}`\n\n解答内容:\n\n`{row1[1]}`",
+                                color=discord.Color(0xc088ff),
+                                timestamp=message.timestamp
+                            )
+                            embeds.set_footer(
+                                text="時刻:"
+                            )
+                            await client.send_message(user,embed=embeds)
+                            return db_count_up_2(int(row1[2])) == True
 
     if message.content == ">answer-top":
         async def send(member_data):
             embed = discord.Embed(
                 title="Best-Answer-Top10",
+                color=discord.Color(0xc088ff),
                 description=member_data
             )
             await client.send_message(message.channel,embed=embed)
 
         i = 1
         member_data = ""
-        for row in db_get_answer():
+        for row in db_get():
             print(row)
-            member_data += "{0}位: <@{1}> [`合計:{2}回`]\n".format(i,row[2],row[4])
+            member_data += "{0}位: <@{1}> [`合計:{2}回`]\n".format(i,row[0],row[1])
             if i % 10 == 0:
                 await send(member_data)
                 member_data = ""
-            i+= 1
+            i += 1
         else:
             await send(member_data)
             return
 
     if message.content.startswith(">question-delete"):
+        if message.content.split()[1] == "":
+            embed = discord.Embed(
+                description=f"{message.author.mention}さん\nメッセージを入力してくれよな！",
+                color=discord.Color(0xc088ff),
+            )
+            await client.send_message(message.channel,embed=embed)
+            return
+
         for row in list(db_read()):
             if int(row[1]) == int(message.author.id):
                 if str(row[0]) == message.content.split()[1]:
@@ -531,7 +595,7 @@ async def on_message(message):
             )
             await client.send_message(message.channel,embed=embed)
             return
-    
+
     if message.content.startswith(">>question-delete"):
         for row in list(db_read()):
             kengensya = ["304932786286886912","439725181389373442"]
@@ -552,6 +616,8 @@ async def on_message(message):
                 await client.send_message(message.channel,embed=embed)
                 return
 
+
+DATABASE_URL = "postgres://ndqrfnqgalhvkq:7d2698cbd5ade6f724cd8af5f694af834c7d81056f4a4b24fb130dab1ce9bb64@ec2-23-21-136-232.compute-1.amazonaws.com:5432/ddq2onqlq0futf"
 def db_read():
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
@@ -637,22 +703,35 @@ def db_write(create_id,create_name,question,):
     con.close()
     return True
 
+
 def db_count_up_2(create_name):
     create_name = int(create_name)
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
-    c.execute("UPDATE question_test set answer_number = answer_number + 1 where create_name=%s;",(create_name,))
+    c.execute("CREATE TABLE IF NOT EXISTS question_number(create_name Bigint);")
+    c.execute("INSERT INTO question_number(create_name) VALUES(%s);",
+              (create_name,))
+    print(con)
     con.commit()
     c.close()
     con.close()
     return True
 
+def db_get():
+    con = psycopg2.connect(os.environ.get("DATABASE_URL"))
+    c = con.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS question_number(create_name Bigint);")
+    c.execute("select create_name, count(*) from question_number group by create_name order by count(*) desc")
+    ans = c.fetchall()
+    for row in ans:
+        print(row)
+        yield (row[0],row[1])
+
 def db_get_answer_number(create_name):
     create_name = int(create_name)
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar);")
     c.execute('''SELECT create_name from question_test where create_name=%s;''',(create_name,))
     ans = c.fetchall()
     for row in ans:
@@ -665,11 +744,11 @@ def db_get_answer_number(create_name):
 def db_get_answer():
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
-    c.execute('''SELECT create_id,answer_questions,create_name,number_id,answer_number from question_test order by answer_number desc;''')
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar);")
+    c.execute('''SELECT create_id,answer_questions,create_name,number_id from question_test;''')
     ans = c.fetchall()
     for row in ans:
-        yield (row[0],row[1],row[2],row[3],row[4])
+        yield (row[0],row[1],row[2],row[3])
     else:
         con.commit()
         c.close()
@@ -681,7 +760,7 @@ def db_access_answer(create_id,answer_question):
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
     c.execute(
-            "CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
+            "CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar);")
     c.execute("""UPDATE question_test set answer_questions='Best-Answer!!\n' || %s where number_id=%s;""",(answer_question,create_id,))
     con.commit()
     c.close()
@@ -695,8 +774,8 @@ def db_answer(create_id,answer_question,create_name,number_id):
     number_id = str(number_id)
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar,answer_number int);")
-    c.execute("INSERT INTO question_test(answer_questions, create_id, create_name, number_id,answer_number) VALUES(%s,%s,%s,%s,0);",
+    c.execute("CREATE TABLE IF NOT EXISTS question_test(create_id varchar ,answer_questions text,create_name Bigint,number_id varchar);")
+    c.execute("INSERT INTO question_test(answer_questions, create_id, create_name, number_id) VALUES(%s,%s,%s,%s);",
               (answer_question,create_id,create_name,number_id))
     con.commit()
     c.close()
@@ -769,5 +848,4 @@ def db_reset_all_role():
     con.close()
     return True
 
-
-client.run(os.environ.get("TOKEN")
+client.run(os.environ.get("TOKEN"))
