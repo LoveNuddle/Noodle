@@ -209,7 +209,7 @@ async def on_message(message):
             await client.send_message(message.channel,embed=embed)
             return
 
-        if any([True for s in os.environ.get["OUT_WORDS"] if s in content]):
+        if any([True for s in os.environ.get("OUT_WORDS") if s in content]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
                 color=discord.Color(0xc088ff),
@@ -250,7 +250,7 @@ async def on_message(message):
             await client.send_message(message.channel,embed=embed)
             return
 
-        if any([True for s in os.environ.get["OUT_WORDS"] if s in content]):
+        if any([True for s in os.environ.get("OUT_WORDS") if s in content]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
                 color=discord.Color(0xc088ff),
@@ -435,7 +435,7 @@ async def on_message(message):
             return
 
         numbers = randomname(5)
-        if any([True for s in os.environ.get["OUT_WORDS"] if s in content]):
+        if any([True for s in os.environ.get("OUT_WORDS") if s in content]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
                 color=discord.Color(0xc088ff),
