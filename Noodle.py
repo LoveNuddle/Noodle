@@ -208,7 +208,7 @@ async def on_message(message):
             )
             await client.send_message(message.channel,embed=embed)
             return
-        out_words = os.environ.get[OUT_WORDS]
+        out_words = os.environ.get["OUT_WORDS"]
         if any([True for s in out_words if s in content]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
@@ -250,10 +250,7 @@ async def on_message(message):
             await client.send_message(message.channel,embed=embed)
             return
 
-        out_words = ["しね","金！暴力！SEX！（迫真）","おっぱい","ちんこ","まんこ","殺す","ちんぽ","おちんちん","アナル","sex","セックス","オナニー","おちんぽ","ちくび",
-                     "乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす",
-                     "mother fucker","金正恩","penis","fuck","死ね","殺す","アホ","赤ちゃん製造ミルク","ザー汁","ザーメン","精液","精子","こ↑こ↓",
-                     "やりますねぇ"]
+        out_words = os.environ.get["OUT_WORDS"]
         if any([True for s in out_words if s in content]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
@@ -439,7 +436,7 @@ async def on_message(message):
             return
 
         numbers = randomname(5)
-        out_words = os.environ.get[OUT_WORDS]
+        out_words = os.environ.get["OUT_WORDS"]
         if any([True for s in out_words if s in message.content[14:]]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので解答できません！",
