@@ -98,7 +98,7 @@ async def on_message(message):
 
             -------------------------------
             このBOTの招待は[こちらから](<https://discordapp.com/api/oauth2/authorize?client_id=531765421070745600&permissions=392417&scope=bot>)
-            
+            このBOTの中身は[こちらから](<https://github.com/LoveNuddle/Noodle/blob/master/Noodle.py>)
             -------------------------------""",
             """
             Command一覧
@@ -208,11 +208,7 @@ async def on_message(message):
             )
             await client.send_message(message.channel,embed=embed)
             return
-
-        out_words = ["しね","金！暴力！SEX！（迫真）","おっぱい","ちんこ","まんこ","殺す","ちんぽ","おちんちん","アナル","sex","セックス","オナニー","おちんぽ","ちくび",
-                     "乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす",
-                     "mother fucker","金正恩","penis","fuck","死ね","殺す","アホ","赤ちゃん製造ミルク","ザー汁","ザーメン","精液","精子","こ↑こ↓",
-                     "やりますねぇ"]
+        out_words = os.environ.get[OUT_WORDS]
         if any([True for s in out_words if s in content]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
@@ -443,10 +439,7 @@ async def on_message(message):
             return
 
         numbers = randomname(5)
-        out_words = ["しね","金！暴力！SEX！（迫真）","おっぱい","ちんこ","まんこ","殺す","ちんぽ","おちんちん","アナル","sex","セックス","オナニー","おちんぽ","ちくび",
-                     "乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす",
-                     "mother fucker","金正恩","penis","fuck","死ね","殺す","アホ","赤ちゃん製造ミルク","ザー汁","ザーメン","精液","精子","こ↑こ↓",
-                     "やりますねぇ"]
+        out_words = os.environ.get[OUT_WORDS]
         if any([True for s in out_words if s in message.content[14:]]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので解答できません！",
@@ -615,8 +608,6 @@ async def on_message(message):
                 await client.send_message(message.channel,embed=embed)
                 return
 
-
-DATABASE_URL = "postgres://ndqrfnqgalhvkq:7d2698cbd5ade6f724cd8af5f694af834c7d81056f4a4b24fb130dab1ce9bb64@ec2-23-21-136-232.compute-1.amazonaws.com:5432/ddq2onqlq0futf"
 def db_read():
     con = psycopg2.connect(os.environ.get("DATABASE_URL"))
     c = con.cursor()
