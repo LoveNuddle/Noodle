@@ -449,7 +449,7 @@ async def on_message(message):
                      "乳首","陰茎","うざい","黙れ","きもい","やりますねぇ！","覚醒剤","覚せい剤","麻薬","コカイン","SEX","害児","pornhub","xvideo","せっくす",
                      "mother fucker","金正恩","penis","fuck","死ね","殺す","アホ","赤ちゃん製造ミルク","ザー汁","ザーメン","精液","精子","こ↑こ↓",
                      "やりますねぇ"]
-        if any([True for s in out_words if s in content]):
+        if any([True for s in out_words if s in message.content[14:]]):
             embed = discord.Embed(
                 description=f"{message.author.mention}さん\n禁止用語が入っているので質問できません！",
                 color=discord.Color(0xc088ff),
