@@ -99,6 +99,7 @@ async def on_message(message):
             -------------------------------
             このBOTの招待は[こちらから](<https://discordapp.com/api/oauth2/authorize?client_id=531765421070745600&permissions=392417&scope=bot>)
             このBOTの中身は[こちらから](<https://github.com/LoveNuddle/Noodle/blob/master/Noodle.py>)
+            公式鯖[こちらから](<https://discord.gg/4YatQpp>)
             -------------------------------""",
             """
             Command一覧
