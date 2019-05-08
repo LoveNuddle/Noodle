@@ -51,11 +51,11 @@ async def on_member_join(member):
     if not member.server.id == "521143812278714378":
         return
     await client.edit_channel(client.get_channel(all_member),
-                              name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
-    await client.edit_channel(client.get_channel(get_user),name="ユーザーカウント｜USER COUNT : {}".format(
+                              name="総メンバー数：{}".format(len(member.server.members)))
+    await client.edit_channel(client.get_channel(get_user),name="ユーザー数：{}".format(
         len([member for member in member.server.members if not member.bot])))
     await client.edit_channel(client.get_channel(get_bot),
-                              name="ボットカウント｜BOT COUNT : {}".format(
+                              name="ボットの数：{}".format(
                                   len([member for member in member.server.members if member.bot])))
 
 
@@ -65,11 +65,11 @@ async def on_member_remove(member):
     if not member.server.id == "521143812278714378":
         return
     await client.edit_channel(client.get_channel(all_member),
-                              name="メンバーカウント｜MEMBER COUNT :{}".format(len(member.server.members)))
-    await client.edit_channel(client.get_channel(get_user),name="ユーザーカウント｜USER COUNT : {}".format(
+                              name="総メンバー数：{}".format(len(member.server.members)))
+    await client.edit_channel(client.get_channel(get_user),name="ユーザー数：{}".format(
         len([member for member in member.server.members if not member.bot])))
     await client.edit_channel(client.get_channel(get_bot),
-                              name="ボットカウント｜BOT COUNT : {}".format(
+                              name="ボットの数：{}".format(
                                   len([member for member in member.server.members if member.bot])))
 
 
@@ -78,7 +78,7 @@ async def on_message(message):
     if datetime.now().strftime("%H:%M:%S") == datetime.now().strftime(
             "12:00:00") or message.content == ">update-message":
         if message.author.server_permissions.administrator:
-            if not member.server.id == "521143812278714378":
+            if not message.server.id == "521143812278714378":
                 return
             await client.delete_message(message)
             counter = 0
@@ -88,7 +88,7 @@ async def on_message(message):
                 async for log in client.logs_from(i,limit=99999999999):
                     if log.server.id == message.server.id:
                         counter += 1
-            await client.edit_channel(channel_name,name="メッセージカウント｜MESSAGE COUNT : {}".format(counter))
+            await client.edit_channel(channel_name,name="総メッセージ数：{}".format(counter))
             return
     help_message = ["""
             -------------------------------
